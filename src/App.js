@@ -1,18 +1,19 @@
+// src/App.js
 import React from 'react';
-import './App.css';
-import Header from './components/header';
-import Footer from './components/footer';
+import Home from './pages/Home/Home';
+import Login from './pages/Login/Login';
+import SignUp from './pages/SignUp/SignUp';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 const App = () => {
     return (
-        <div className="d-flex flex-column min-vh-100">
-            <Header />
-            <div className="container my-5">
-                <h1>Welcome to My App</h1>
-                <p>Your main content goes here.</p>
-            </div>
-            <Footer />
-        </div>
+        <Router>
+            <Routes>
+                <Route path='/' element={<Home />} />
+                <Route path='/login' element={<Login />} />
+                <Route path='/sign-up' element={<SignUp />} />
+            </Routes>
+        </Router>
     );
 };
 

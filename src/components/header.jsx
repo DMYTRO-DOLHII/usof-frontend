@@ -1,7 +1,8 @@
 // src/components/Header.js
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ hideAuthorizationButtons }) => {
     return (
         <header className="navbar navbar-expand-lg navbar-light bg-light p-3">
             <div className="container-fluid">
@@ -24,16 +25,22 @@ const Header = () => {
                 </form>
 
                 {/* Buttons for Login and Sign Up */}
-                <div className="d-flex gap-2">
-                    <button className="btn btn-outline-primary" type="button">
-                        Login
-                    </button>
-                    <button className="btn btn-primary" type="button">
-                        Sign Up
-                    </button>
-                </div>
+                {!hideAuthorizationButtons && (
+                    < div className="d-flex gap-2">
+                        <Link to={'/login'}>
+                            <button className="btn btn-outline-primary" type="button">
+                                Login
+                            </button>
+                        </Link>
+                        <Link to={'/sign-up'}>
+                            <button className="btn btn-primary" type="button">
+                                Sign Up
+                            </button>
+                        </Link>
+                    </div>
+                )}
             </div>
-        </header>
+        </header >
     );
 };
 
