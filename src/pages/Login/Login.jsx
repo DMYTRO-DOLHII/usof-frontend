@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 
 const Login = () => {
     const [loginData, setLoginData] = useState({
+        login: "",
         email: "",
         password: "",
     });
@@ -19,16 +20,45 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Login submitted:", loginData);
-        // Perform login action (e.g., API call)
+
+        const url = `${process.env.REACT_APP_BACK_URL}/api/auth/login`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                login: loginData.login,
+                email: loginData.email,
+                password: loginData.password,
+            })
+        })
+            .then(response => response.json())
+            .then(data => console.log("Response:", data))
+            .catch(error => console.error("Error:", error));
     };
 
     return (
         <>
             <Header hideAuthorizationButtons={true} />
-            <div className="container d-flex justify-content-center align-items-center" style={{height: '80vh'}}>
+            <div className="container d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
                 <div className="card p-4" style={{ width: "100%", maxWidth: "400px" }}>
                     <h2 className="text-center mb-4">Login</h2>
                     <form onSubmit={handleSubmit}>
+                        <div className="form-group mb-3">
+                            <label htmlFor="login">Login</label>
+                            <input
+                                type="login"
+                                className="form-control"
+                                id="login"
+                                name="login"
+                                value={loginData.login}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
                         <div className="form-group mb-3">
                             <label htmlFor="email">Email</label>
                             <input
