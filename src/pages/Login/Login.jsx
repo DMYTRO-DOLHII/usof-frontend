@@ -1,4 +1,3 @@
-// src/pages/Login.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header";
@@ -6,9 +5,9 @@ import Header from "../../components/Header";
 const Login = () => {
     const [loginData, setLoginData] = useState({
         login: "",
-        email: "",
         password: "",
     });
+    const [error, setError] = useState(""); // State to store error message
 
     const handleChange = (e) => {
         setLoginData({
@@ -19,7 +18,7 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Login submitted:", loginData);
+        setError(""); // Clear any previous error message
 
         const url = `${process.env.REACT_APP_BACK_URL}/api/auth/login`;
 
@@ -31,42 +30,41 @@ const Login = () => {
             },
             body: JSON.stringify({
                 login: loginData.login,
-                email: loginData.email,
                 password: loginData.password,
             })
         })
-            .then(response => response.json())
-            .then(data => console.log("Response:", data))
-            .catch(error => console.error("Error:", error));
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message); // Use error message from backend
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Response:", data);
+                // Handle successful login (e.g., save token, redirect)
+            })
+            .catch(error => {
+                setError(error.message); // Set the error message to display in UI
+            });
     };
 
     return (
         <>
             <Header hideAuthorizationButtons={true} />
-            <div className="container d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+            <div className="container d-flex justify-content-center align-items-center flex-column mt-5" style={{ minHeight: '80vh' }}>
                 <div className="card p-4" style={{ width: "100%", maxWidth: "400px" }}>
                     <h2 className="text-center mb-4">Login</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group mb-3">
-                            <label htmlFor="login">Login</label>
+                            <label htmlFor="login">Login or Email</label>
                             <input
-                                type="login"
+                                type="text"
                                 className="form-control"
                                 id="login"
                                 name="login"
                                 value={loginData.login}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-                        <div className="form-group mb-3">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                type="email"
-                                className="form-control"
-                                id="email"
-                                name="email"
-                                value={loginData.email}
                                 onChange={handleChange}
                                 required
                             />
@@ -86,12 +84,17 @@ const Login = () => {
                         <button type="submit" className="btn btn-primary w-100">
                             Login
                         </button>
+                        {error && (
+                            <div className="alert alert-danger text-center mt-3">
+                                {error}
+                            </div>
+                        )}
                     </form>
-                    <div className="text-center mt-3">
-                        <p>
-                            Don't have an account? <Link to="/sign-up">Sign up</Link>
-                        </p>
-                    </div>
+                </div>
+                <div className="text-center mt-3">
+                    <p>
+                        Don't have an account? <Link to="/sign-up">Sign up</Link>
+                    </p>
                 </div>
             </div>
         </>

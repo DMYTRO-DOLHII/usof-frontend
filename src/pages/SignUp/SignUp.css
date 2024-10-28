@@ -1,0 +1,20 @@
+.password-input-wrapper {
+    position: relative;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    padding: 0;
+    font-size: 1rem;
+}
+
+.toggle-password-btn:focus {
+    outline: none;
+}
