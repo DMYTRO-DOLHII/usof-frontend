@@ -8,7 +8,7 @@ const Header = ({ hideAuthorizationButtons }) => {
             <div className="container-fluid">
                 {/* App Name */}
                 <a className="navbar-brand fw-bold" href="/">
-                    My App
+                    McOk
                 </a>
 
                 {/* Search Bar */}
