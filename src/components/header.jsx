@@ -7,7 +7,7 @@ const Header = ({ hideAuthorizationButtons }) => {
         <header className="navbar navbar-expand-lg navbar-light bg-light p-3">
             <div className="container-fluid">
                 {/* App Name */}
-                <a className="navbar-brand fw-bold" href="/">
+                <a className="navbar-brand fw-bold gradient" href="/">
                     McOk
                 </a>
 

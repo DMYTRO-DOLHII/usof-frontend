@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import './Home.css'
+import './Home.css';
+import '../../App.css';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -11,10 +13,15 @@ const Home = () => {
     const [totalPages, setTotalPages] = useState(1);
 
     const postLimit = 12;
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchPosts(page);
     }, [page]);
+
+    const handleCardClick = (postId) => {
+        navigate(`/posts/${postId}`);
+    };
 
     const fetchPosts = async (page) => {
         setLoading(true);
@@ -44,19 +51,19 @@ const Home = () => {
         <div className="d-flex flex-column min-vh-100">
             <Header />
             <div className="container my-5">
-                <h1>Welcome to McOk</h1>
+                <h1>Welcome to <span className='gradient'>McOk</span></h1>
                 {error && <p className="text-danger">{error}</p>}
                 {loading ? (
                     <p>Loading posts...</p>
                 ) : (
                     <div className="row">
                         {posts.map((post) => (
-                            <div key={post.id} className="col-md-4 mb-4">
+                            <div key={post.id} className="col-md-4 mb-4" onClick={() => handleCardClick(post.id)}>
                                 <div className="card">
                                     <div className="card-body">
                                         <h5 className="card-title">{post.title}</h5>
                                         <p className="card-text">
-                                            <span className={`badge ${post.status === 'active' ? 'badge-success' : 'badge-secondary'}`}>
+                                            <span className={`${post.status === 'active' ? 'badge-success' : 'badge-secondary'}`}>
                                                 {post.status}
                                             </span>
                                         </p>

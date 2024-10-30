@@ -28,3 +28,35 @@ input[type="text"] {
     border-radius: 50%;
     margin-right: 10px;
 }
+
+.gradient {
+    background: #0800A7;
+    background: linear-gradient(to bottom left, #0800A7 0%, #EC7EEA 91%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: "Noto Sans JP", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 800;
+    font-style: normal;
+}
+
+.gradient-button {
+    padding: 10px 20px;
+    border: 2px solid transparent;
+    border-image: linear-gradient(to bottom left, #0800A7, #EC7EEA) 1;
+    background-color: transparent;
+    color: #0800A7;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 300;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.gradient-button:hover {
+    background: linear-gradient(to bottom left, #0800A7, #EC7EEA);
+    color: white;
+    border-color: transparent;
+}
