@@ -1,6 +1,8 @@
 // src/pages/Post/Post.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import './Post.css';
@@ -23,7 +25,6 @@ const Post = () => {
                 }
                 if (!response.ok) throw new Error('Error fetching post data');
                 const data = await response.json();
-                console.log(data)
                 setPost(data);
             } catch (err) {
                 setError(err.message);
@@ -52,7 +53,9 @@ const Post = () => {
                             </span>
                         </p>
                         <div className="post-body">
-                            {post.content}
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {post.content}
+                            </ReactMarkdown>
                         </div>
                     </>
                 )}
