@@ -42,13 +42,20 @@ const Login = () => {
                 return response.json();
             })
             .then(data => {
-                console.log("Response:", data);
-                // Handle successful login (e.g., save token, redirect)
+                // Assuming the token is in `data.token`
+                const token = data.token;
+
+                // Save the token in localStorage
+                localStorage.setItem('token', token);
+
+                // Redirect to the main page
+                window.location.href = '/';
             })
             .catch(error => {
                 setError(error.message); // Set the error message to display in UI
             });
     };
+
 
     return (
         <>

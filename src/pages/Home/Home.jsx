@@ -12,7 +12,7 @@ const Home = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const postLimit = 12;
+    const postLimit = 30;
     const navigate = useNavigate();
 
     useEffect(() => {

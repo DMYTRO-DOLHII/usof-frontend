@@ -1,10 +1,19 @@
-// src/components/Header.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './Header.css'; // Make sure to create this CSS file
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import './Header.css';
 
 const Header = ({ hideAuthorizationButtons }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setIsLoggedIn(true);
+        }
+    }, []);
 
     const toggleOverlay = () => {
         setIsOpen(!isOpen);
@@ -21,7 +30,6 @@ const Header = ({ hideAuthorizationButtons }) => {
                     McOk
                 </a>
 
-
                 <form className="d-flex me-auto ms-auto w-50" role="search">
                     <input
                         className="form-control me-2 w-100"
@@ -36,16 +44,24 @@ const Header = ({ hideAuthorizationButtons }) => {
 
                 {!hideAuthorizationButtons && (
                     <div className="d-flex gap-2">
-                        <Link to={'/login'}>
-                            <button className="btn btn-outline-primary" type="button">
-                                Login
-                            </button>
-                        </Link>
-                        <Link to={'/sign-up'}>
-                            <button className="btn btn-primary" type="button">
-                                Sign Up
-                            </button>
-                        </Link>
+                        {isLoggedIn ? (
+                            <Link to="/account">
+                                <div className="profile-icon"></div>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link to={'/login'}>
+                                    <button className="btn btn-outline-primary" type="button">
+                                        Login
+                                    </button>
+                                </Link>
+                                <Link to={'/sign-up'}>
+                                    <button className="btn btn-primary" type="button">
+                                        Sign Up
+                                    </button>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 )}
             </div>

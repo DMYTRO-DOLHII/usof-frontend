@@ -4,6 +4,24 @@
     padding: 0 15px;
 }
 
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+    background: linear-gradient(to bottom left, #0800A7 0%, #EC7EEA 91%);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='%23000000' d='M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96a88 88 0 110 176 88 88 0 010-176zm0 352c-60.6 0-114.5-30.9-146.8-77.5 8-19.6 20.5-37 36.6-49.7 16.7-13.3 38.8-20.8 61.2-20.8 2.7 0 5.3.4 8 .8 13.2 2.1 26.9 3.2 40.9 3.2s27.8-1.1 40.9-3.2c2.6-.4 5.2-.8 8-.8 22.4 0 44.5 7.5 61.2 20.8 16.1 12.7 28.6 30.1 36.6 49.7C362.5 425.1 308.6 456 248 456z'/%3E%3C/svg%3E");
+    -webkit-mask-size: cover;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='%23000000' d='M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 96a88 88 0 110 176 88 88 0 010-176zm0 352c-60.6 0-114.5-30.9-146.8-77.5 8-19.6 20.5-37 36.6-49.7 16.7-13.3 38.8-20.8 61.2-20.8 2.7 0 5.3.4 8 .8 13.2 2.1 26.9 3.2 40.9 3.2s27.8-1.1 40.9-3.2c2.6-.4 5.2-.8 8-.8 22.4 0 44.5 7.5 61.2 20.8 16.1 12.7 28.6 30.1 36.6 49.7C362.5 425.1 308.6 456 248 456z'/%3E%3C/svg%3E");
+    mask-size: cover;
+    transition: 0.2s ease-in-out;
+}
+
+.profile-icon:hover {
+    transform: scale(1.2);
+}
+
 .header {
     position: relative;
 }
