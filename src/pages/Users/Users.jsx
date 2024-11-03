@@ -35,6 +35,15 @@ const Users = () => {
         if (page < totalPages) setPage(page + 1);
     };
 
+    const isValidUrl = (string) => {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+
     return (
         <div className="page-container">
             <Header />
@@ -43,7 +52,12 @@ const Users = () => {
                 <div className="users-container">
                     {users.map((user) => (
                         <div key={user.id} className="user-card">
-                            <img src={user.profilePicture} alt={`${user.fullName}'s avatar`} className="user-avatar" />
+                            <img
+                                src={isValidUrl(user.profilePicture)
+                                    ? user.profilePicture
+                                    : `${process.env.REACT_APP_BACK_URL}/${user.profilePicture}`}
+                                alt={`${user.fullName}'s avatar`}
+                                className="user-avatar" />
                             <h5>{user.fullName}</h5>
                             <p>Rating: {user.rating}</p>
                         </div>

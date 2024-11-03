@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 
 const Login = () => {
@@ -7,6 +7,7 @@ const Login = () => {
         login: "",
         password: "",
     });
+    const navigate = useNavigate();
     const [error, setError] = useState(""); // State to store error message
 
     const handleChange = (e) => {
@@ -49,7 +50,7 @@ const Login = () => {
                 localStorage.setItem('token', token);
 
                 // Redirect to the main page
-                window.location.href = '/';
+                navigate('/');
             })
             .catch(error => {
                 setError(error.message); // Set the error message to display in UI
