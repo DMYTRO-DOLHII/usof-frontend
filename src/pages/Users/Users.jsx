@@ -6,6 +6,7 @@ import Footer from '../../components/Footer';
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [page, setPage] = useState(1);
+    const [inputPage, setInputPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
     const userLimit = 30;
@@ -22,6 +23,7 @@ const Users = () => {
             const data = await response.json();
             setUsers(data.users);
             setTotalPages(data.pagination.totalPages);
+            setInputPage(page);
         } catch (error) {
             console.error("Error fetching users:", error);
         }
@@ -33,6 +35,17 @@ const Users = () => {
 
     const handleNextPage = () => {
         if (page < totalPages) setPage(page + 1);
+    };
+
+    const handlePageInputChange = (e) => {
+        setInputPage(e.target.value);
+    };
+
+    const handlePageInputSubmit = (e) => {
+        if (e.key === 'Enter') {
+            const newPage = Math.min(Math.max(1, parseInt(inputPage) || 1), totalPages);
+            setPage(newPage);
+        }
     };
 
     const isValidUrl = (string) => {
@@ -64,7 +77,8 @@ const Users = () => {
                     ))}
                 </div>
 
-                <div className="pagination-controls">
+                {/* Pagination Controls */}
+                <div className="pagination-controls d-flex justify-content-between mt-4 align-items-center">
                     <button
                         className="btn btn-secondary"
                         onClick={handlePreviousPage}
@@ -72,7 +86,20 @@ const Users = () => {
                     >
                         Previous
                     </button>
-                    <span>Page {page} of {totalPages}</span>
+                    <div className="d-flex align-items-center">
+                        <span>Page </span>
+                        <input
+                            type="number"
+                            className="form-control mx-2"
+                            style={{ width: '60px', textAlign: 'center' }}
+                            value={inputPage}
+                            onChange={handlePageInputChange}
+                            onKeyDown={handlePageInputSubmit}
+                            min={1}
+                            max={totalPages}
+                        />
+                        <span> of {totalPages}</span>
+                    </div>
                     <button
                         className="btn btn-secondary"
                         onClick={handleNextPage}

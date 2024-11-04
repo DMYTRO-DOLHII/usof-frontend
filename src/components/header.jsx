@@ -3,20 +3,42 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
+import { decodeToken } from '../utils/token';
 
 const Header = ({ hideAuthorizationButtons }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState(null);
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setIsLoggedIn(true);
-        }
+        if (token) fetchMe(decodeToken(token));
     }, []);
 
     const toggleOverlay = () => {
         setIsOpen(!isOpen);
+    };
+
+    const fetchMe = async (token) => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/users/${token}`);
+            if (!response.ok) throw new Error('Error fetching user info');
+            const data = await response.json();
+            setUser(data); // Set the user information in state
+        } catch (err) {
+            setError(err.message);
+        } finally {
+
+        }
+    };
+
+    const isValidUrl = (string) => {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
     };
 
     return (
@@ -44,9 +66,15 @@ const Header = ({ hideAuthorizationButtons }) => {
 
                 {!hideAuthorizationButtons && (
                     <div className="d-flex gap-2">
-                        {isLoggedIn ? (
+                        {user && user.profilePicture ? (
                             <Link to="/account">
-                                <div className="profile-icon"></div>
+                                <img
+                                    src={isValidUrl(user.profilePicture)
+                                        ? user.profilePicture
+                                        : `${process.env.REACT_APP_BACK_URL}/${user.profilePicture}`}
+                                    alt="Profile"
+                                    className="profile-icon"
+                                />
                             </Link>
                         ) : (
                             <>

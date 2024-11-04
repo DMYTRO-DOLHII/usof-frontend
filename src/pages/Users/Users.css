@@ -1,28 +1,24 @@
-/* Ensure the whole page takes up full viewport height */
+/* General Responsive Styles */
 .page-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* Main content, push footer to the bottom if there's extra space */
 .content {
     flex: 1;
     margin: 0 auto;
-    max-width: 1300px;
+    padding: 20px;
 }
 
-/* User cards grid layout */
+/* Users Container Grid */
 .users-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    /* Four columns */
     gap: 20px;
-    /* Space between cards */
     margin-bottom: 20px;
 }
 
-/* User card styles */
 .user-card {
     border: 1px solid #ddd;
     border-radius: 0.5rem;
@@ -33,6 +29,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    transition: transform 0.2s;
 }
 
 .user-card:hover {
@@ -41,26 +38,62 @@
 }
 
 .user-avatar {
-    width: 50%;
-    height: auto;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    object-position: center;
     border-radius: 50%;
     margin-bottom: 10px;
 }
 
-.user-info h5 {
-    font-size: 1rem;
-    margin: 0;
-}
-
-.user-info p {
-    margin: 5px 0 0;
-    font-size: 0.875rem;
-}
-
-/* Pagination controls alignment */
+/* Responsive Pagination Controls */
 .pagination-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination-controls input[type="number"] {
+    width: 50px;
+    text-align: center;
+}
+
+/* Responsive Adjustments for Smaller Screens */
+@media (max-width: 1200px) {
+    .users-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .users-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pagination-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pagination-controls input[type="number"] {
+        width: 80px;
+    }
+}
+
+@media (max-width: 576px) {
+    .users-container {
+        grid-template-columns: 1fr;
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .pagination-controls button {
+        width: 100%;
+        margin-top: 5px;
+    }
 }
