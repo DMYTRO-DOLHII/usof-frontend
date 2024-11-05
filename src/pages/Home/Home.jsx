@@ -4,7 +4,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import './Home.css';
 import '../../App.css';
-import { decodeToken } from '../../utils/token';
+import { decodeToken, decodeTokenLogin } from '../../utils/token';
+import { getCookie } from '../../utils/cookie';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -31,6 +32,7 @@ const Home = () => {
             const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?page=${page}&limit=${postLimit}`);
             if (!response.ok) throw new Error('Error fetching posts');
             const data = await response.json();
+            console.log(data.posts);
             setPosts(data.posts);
             setTotalPages(data.pagination.totalPages);
             setInputPage(page); // Update inputPage to reflect the current page
@@ -66,9 +68,9 @@ const Home = () => {
             <div className="container my-5">
                 <h1>
                     Welcome to <span className='gradient'>McOk</span>
-                    {/* {user && (
-                        <span>, {user.fullName}</span> // Display user full name
-                    )} */}
+                    {localStorage.getItem('token') && (
+                        <span>, {decodeTokenLogin(localStorage.getItem('token'))}</span> // Display user full name
+                    )}
                 </h1>
                 {error && <p className="text-danger">{error}</p>}
                 {loading ? (
@@ -94,7 +96,9 @@ const Home = () => {
                         ))}
                     </div>
                 )}
-                <div className="d-flex justify-content-between mt-4 align-items-center">
+
+                {/* Pagination Controls */}
+                <div className="pagination-controls d-flex justify-content-between mt-4 align-items-center">
                     <button
                         className="btn btn-secondary"
                         onClick={handlePreviousPage}

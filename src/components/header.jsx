@@ -25,6 +25,7 @@ const Header = ({ hideAuthorizationButtons }) => {
             if (!response.ok) throw new Error('Error fetching user info');
             const data = await response.json();
             setUser(data); // Set the user information in state
+            document.cookie = `fullName=${encodeURIComponent(data.fullName)}; path=/; max-age=86400`;
         } catch (err) {
             setError(err.message);
         } finally {

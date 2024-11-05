@@ -2,6 +2,7 @@ import React from 'react';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import SignUp from './pages/SignUp/SignUp';
+import Account from './pages/Account/Account';
 import Post from './pages/Post/Post';
 import Users from './pages/Users/Users';
 import ConfirmEmail from './pages/ConfirmEmail/ConfirmEmail'
@@ -15,6 +16,7 @@ const App = () => {
                 <Route path='/' element={<Home />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/sign-up' element={<SignUp />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/posts/:postId" element={<Post />} />
                 <Route path='/users' element={<Users />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
