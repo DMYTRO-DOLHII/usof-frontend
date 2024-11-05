@@ -32,7 +32,7 @@ const Home = () => {
             const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?page=${page}&limit=${postLimit}`);
             if (!response.ok) throw new Error('Error fetching posts');
             const data = await response.json();
-            console.log(data.posts);
+
             setPosts(data.posts);
             setTotalPages(data.pagination.totalPages);
             setInputPage(page); // Update inputPage to reflect the current page
@@ -80,19 +80,31 @@ const Home = () => {
                         {posts.map((post) => (
                             <div key={post.id} className="col-md-4 mb-4" onClick={() => handleCardClick(post.id)}>
                                 <div className="card">
+                                    {/* Status Circle */}
+                                    <div className={`status-circle ${post.status === 'active' ? 'status-active' : 'status-inactive'}`}></div>
                                     <div className="card-body">
                                         <h5 className="card-title">{post.title}</h5>
-                                        <p className="card-text">
-                                            <span className={`${post.status === 'active' ? 'badge-success' : 'badge-secondary'}`}>
-                                                {post.status}
-                                            </span>
-                                        </p>
                                         <small className="text-muted">
                                             Published on: {new Date(post.publishDate).toLocaleDateString()}
                                         </small>
+                                        {/* Categories Display */}
+                                        <div className="mt-2">
+                                            {post.categories && post.categories.length > 0 ? (
+                                                <ul className="category-list list-unstyled">
+                                                    {post.categories.map((category) => (
+                                                        <li key={category.id} className="category-item">
+                                                            {category.title}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <span>No categories available</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
                         ))}
                     </div>
                 )}
