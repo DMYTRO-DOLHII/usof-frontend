@@ -4,8 +4,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import './Home.css';
 import '../../App.css';
-import { decodeToken, decodeTokenLogin } from '../../utils/token';
-import { getCookie } from '../../utils/cookie';
+import { decodeTokenLogin } from '../../utils/token';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -25,14 +24,14 @@ const Home = () => {
     const handleCardClick = (postId) => {
         navigate(`/posts/${postId}`);
     };
-
+ 
     const fetchPosts = async (page) => {
         setLoading(true);
         try {
             const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?page=${page}&limit=${postLimit}`);
             if (!response.ok) throw new Error('Error fetching posts');
             const data = await response.json();
-
+            console.log(data.posts);
             setPosts(data.posts);
             setTotalPages(data.pagination.totalPages);
             setInputPage(page); // Update inputPage to reflect the current page
@@ -79,7 +78,7 @@ const Home = () => {
                     <div className="row">
                         {posts.map((post) => (
                             <div key={post.id} className="col-md-4 mb-4" onClick={() => handleCardClick(post.id)}>
-                                <div className="card">
+                                <div className={`card post-card ${post.status === 'active' ? 'hover-active' : 'hover-inactive'}`}>
                                     {/* Status Circle */}
                                     <div className={`status-circle ${post.status === 'active' ? 'status-active' : 'status-inactive'}`}></div>
                                     <div className="card-body">

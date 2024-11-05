@@ -25,7 +25,7 @@ h1 {
     min-height: 100vh;
 }
 
-.card {
+.post-card {
     position: relative;
     border: 1px solid #ddd;
     border-radius: 0.5rem;
@@ -33,9 +33,19 @@ h1 {
     transition: transform 0.2s;
 }
 
-.card:hover {
+.post-card:hover {
     transform: scale(1.02) rotate(2deg) rotateX(5deg) rotateY(5deg);
     cursor: pointer;
+}
+
+.hover-active:hover {
+    -webkit-box-shadow: 0px 0px 17px 5px rgba(40, 255, 0, 0.77);
+    box-shadow: 0px 0px 20px 1px rgba(40, 255, 0, 0.77);
+}
+
+.hover-inactive:hover {
+    -webkit-box-shadow: 0px 0px 17px 5px rgba(91, 91, 91, 0.29);
+    box-shadow: 0px 0px 17px 5px rgba(91, 91, 91, 0.29);
 }
 
 .status-circle {
