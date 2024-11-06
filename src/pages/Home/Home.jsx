@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/Footer'; 
 import './Home.css';
 import '../../App.css';
 import { decodeTokenLogin } from '../../utils/token';
