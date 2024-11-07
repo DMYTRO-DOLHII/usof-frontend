@@ -18,11 +18,11 @@
     font-weight: bold;
 }
 
-.status-active {
+.status-active-text {
     color: #28a745;
 }
 
-.status-inactive {
+.status-inactive-text {
     color: #6c757d;
 }
 

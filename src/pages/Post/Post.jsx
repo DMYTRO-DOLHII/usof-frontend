@@ -48,7 +48,7 @@ const Post = () => {
                         <h1 className="post-title gradient">{post.title}</h1>
                         <p className="post-meta text-muted">
                             Published on: {new Date(post.publishDate).toLocaleDateString()} | Status:
-                            <span className={`status ${post.status === 'active' ? 'status-active' : 'status-inactive'}`}>
+                            <span className={`status ${post.status === 'active' ? 'status-active-text' : 'status-inactive-text'}`}>
                                 {post.status}
                             </span>
                         </p>

@@ -19,13 +19,12 @@ const Header = ({ hideAuthorizationButtons }) => {
         setIsOpen(!isOpen);
     };
 
-    const fetchMe = async (token) => {
+    const fetchMe = async (id) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/users/${token}`);
+            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/users/${id}`);
             if (!response.ok) throw new Error('Error fetching user info');
             const data = await response.json();
             setUser(data); // Set the user information in state
-            document.cookie = `fullName=${encodeURIComponent(data.fullName)}; path=/; max-age=86400`;
         } catch (err) {
             setError(err.message);
         } finally {

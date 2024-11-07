@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
-import Footer from '../../components/Footer'; 
+import Footer from '../../components/Footer';
 import './Home.css';
 import '../../App.css';
 import { decodeTokenLogin } from '../../utils/token';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faComment } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
@@ -24,17 +26,16 @@ const Home = () => {
     const handleCardClick = (postId) => {
         navigate(`/posts/${postId}`);
     };
- 
+
     const fetchPosts = async (page) => {
         setLoading(true);
         try {
             const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?page=${page}&limit=${postLimit}`);
             if (!response.ok) throw new Error('Error fetching posts');
             const data = await response.json();
-            console.log(data.posts);
             setPosts(data.posts);
             setTotalPages(data.pagination.totalPages);
-            setInputPage(page); // Update inputPage to reflect the current page
+            setInputPage(page);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -56,8 +57,8 @@ const Home = () => {
 
     const handlePageInputSubmit = (e) => {
         if (e.key === 'Enter') {
-            const newPage = Math.min(Math.max(1, parseInt(inputPage) || 1), totalPages); // Ensure within valid range
-            setPage(newPage); // Update the page to the user-specified page number
+            const newPage = Math.min(Math.max(1, parseInt(inputPage) || 1), totalPages);
+            setPage(newPage);
         }
     };
 
@@ -68,7 +69,7 @@ const Home = () => {
                 <h1>
                     Welcome to <span className='gradient'>McOk</span>
                     {localStorage.getItem('token') && (
-                        <span>, {decodeTokenLogin(localStorage.getItem('token'))}</span> // Display user full name
+                        <span>, {decodeTokenLogin(localStorage.getItem('token'))}</span>
                     )}
                 </h1>
                 {error && <p className="text-danger">{error}</p>}
@@ -79,14 +80,12 @@ const Home = () => {
                         {posts.map((post) => (
                             <div key={post.id} className="col-md-4 mb-4" onClick={() => handleCardClick(post.id)}>
                                 <div className={`card post-card ${post.status === 'active' ? 'hover-active' : 'hover-inactive'}`}>
-                                    {/* Status Circle */}
                                     <div className={`status-circle ${post.status === 'active' ? 'status-active' : 'status-inactive'}`}></div>
                                     <div className="card-body">
                                         <h5 className="card-title">{post.title}</h5>
                                         <small className="text-muted">
                                             Published on: {new Date(post.publishDate).toLocaleDateString()}
                                         </small>
-                                        {/* Categories Display */}
                                         <div className="mt-2">
                                             {post.categories && post.categories.length > 0 ? (
                                                 <ul className="category-list list-unstyled">
@@ -101,9 +100,12 @@ const Home = () => {
                                             )}
                                         </div>
                                     </div>
+                                    {/* Comment Icon and Count */}
+                                    <div className="comments-info">
+                                        <FontAwesomeIcon icon={faComment} />{post.commentsCount}
+                                    </div>
                                 </div>
                             </div>
-
                         ))}
                     </div>
                 )}
@@ -125,7 +127,7 @@ const Home = () => {
                             style={{ width: '60px', textAlign: 'center' }}
                             value={inputPage}
                             onChange={handlePageInputChange}
-                            onKeyDown={handlePageInputSubmit} // Enter key triggers the change
+                            onKeyDown={handlePageInputSubmit}
                             min={1}
                             max={totalPages}
                         />
