@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Account.css';
 import { decodeToken } from '../../utils/token';
-import Header from '../../components/Header';
+import Header from '../../components/header/Header';
 import Footer from '../../components/Footer';
 
 const Account = () => {

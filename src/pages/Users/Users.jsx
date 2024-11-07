@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Users.css';
-import Header from '../../components/Header';
+import Header from '../../components/header/Header';
 import Footer from '../../components/Footer';
 
 const Users = () => {

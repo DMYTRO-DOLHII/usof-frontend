@@ -7,22 +7,31 @@ import Post from './pages/Post/Post';
 import Users from './pages/Users/Users';
 import ConfirmEmail from './pages/ConfirmEmail/ConfirmEmail'
 import NotFound from './pages/NotFound/NotFound';
+
+import store, { persistor } from "./store/store";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 const App = () => {
     return (
-        <Router>
-            <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/login' element={<Login />} />
-                <Route path='/sign-up' element={<SignUp />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/posts/:postId" element={<Post />} />
-                <Route path='/users' element={<Users />} />
-                <Route path="/confirm-email" element={<ConfirmEmail />} />
-                <Route path='*' element={<NotFound />} />
-            </Routes>
-        </Router>
+        <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+                <Router>
+                    <Routes>
+                        <Route path='/' element={<Home />} />
+                        <Route path='/login' element={<Login />} />
+                        <Route path='/sign-up' element={<SignUp />} />
+                        <Route path="/account" element={<Account />} />
+                        <Route path="/posts/:postId" element={<Post />} />
+                        <Route path='/users' element={<Users />} />
+                        <Route path="/confirm-email" element={<ConfirmEmail />} />
+                        <Route path='*' element={<NotFound />} />
+                    </Routes>
+                </Router>
+            </PersistGate>
+        </Provider>
     );
 };
 

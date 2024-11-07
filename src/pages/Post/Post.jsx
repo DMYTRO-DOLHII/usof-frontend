@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import Header from '../../components/Header';
+import Header from '../../components/header/Header';
 import Footer from '../../components/Footer';
+import Comment from '../../components/Comment/Comment'; // Import the Comment component
 import './Post.css';
 
 const Post = () => {
@@ -25,6 +26,7 @@ const Post = () => {
                 }
                 if (!response.ok) throw new Error('Error fetching post data');
                 const data = await response.json();
+                console.log(data);
                 setPost(data);
             } catch (err) {
                 setError(err.message);
@@ -56,6 +58,23 @@ const Post = () => {
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {post.content}
                             </ReactMarkdown>
+                        </div>
+
+                        {/* Render Comments Section */}
+                        <div className="comments-section mt-5">
+                            <h3>Comments</h3>
+                            {post.comments && post.comments.length > 0 ? (
+                                post.comments.map((comment) => (
+                                    <Comment
+                                        key={comment.id}
+                                        content={comment.content}
+                                        publishDate={comment.publishDate}
+                                        status={comment.status}
+                                    />
+                                ))
+                            ) : (
+                                <p>No comments available for this post.</p>
+                            )}
                         </div>
                     </>
                 )}

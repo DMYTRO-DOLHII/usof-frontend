@@ -1,0 +1,24 @@
+.comment {
+    margin-top: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+    max-width: 1000px;
+}
+
+.comment-content {
+    font-size: 1rem;
+    color: #333;
+}
+
+.comment-meta {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.status-active-text {
+    color: #28a745;
+}
+
+.status-inactive-text {
+    color: #6c757d;
+}

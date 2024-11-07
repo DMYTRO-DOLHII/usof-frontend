@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
-import { decodeToken } from '../utils/token';
+import SearchInput from './components/SearchInput';
+import { decodeToken } from '../../utils/token';
 
 const Header = ({ hideAuthorizationButtons }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +53,7 @@ const Header = ({ hideAuthorizationButtons }) => {
                     McOk
                 </a>
 
-                <form className="d-flex me-auto ms-auto w-50" role="search">
+                {/* <form className="d-flex me-auto ms-auto w-50" role="search">
                     <input
                         className="form-control me-2 w-100"
                         type="search"
@@ -62,7 +63,8 @@ const Header = ({ hideAuthorizationButtons }) => {
                     <button className="btn btn-outline-success" type="submit">
                         Search
                     </button>
-                </form>
+                </form> */}
+                <SearchInput />
 
                 {!hideAuthorizationButtons && (
                     <div className="d-flex gap-2">

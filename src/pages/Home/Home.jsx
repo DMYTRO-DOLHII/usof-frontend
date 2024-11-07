@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/Header';
+import Header from '../../components/header/Header';
 import Footer from '../../components/Footer';
 import './Home.css';
 import '../../App.css';
 import { decodeTokenLogin } from '../../utils/token';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+
+import { getAllPosts } from '../../store/slices/postSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Home = () => {
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    // const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [inputPage, setInputPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
+    const { posts, total } = useSelector(state => state.post);
+
     const postLimit = 30;
+    const [offset, setOffset] = useState(0);
+
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchPosts(page);
+        dispatch(getAllPosts({offset: ((page - 1) * postLimit), limit: postLimit, search: ''}));
     }, [page]);
 
     const handleCardClick = (postId) => {
@@ -30,11 +38,12 @@ const Home = () => {
     const fetchPosts = async (page) => {
         setLoading(true);
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?page=${page}&limit=${postLimit}`);
+            const offset = (page - 1) * postLimit;
+            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?offset=${offset}&limit=${postLimit}`);
             if (!response.ok) throw new Error('Error fetching posts');
             const data = await response.json();
-            setPosts(data.posts);
-            setTotalPages(data.pagination.totalPages);
+            // setPosts(data.posts);
+            setTotalPages(data.pagination.totalItems / postLimit);
             setInputPage(page);
         } catch (err) {
             setError(err.message);
@@ -99,10 +108,15 @@ const Home = () => {
                                                 <span>No categories available</span>
                                             )}
                                         </div>
+                                        {/* Likes and Dislikes */}
+                                        <div className="likes-info">
+                                            <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {post.likes}</div>
+                                            <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {post.dislikes}</div>
+                                        </div>
                                     </div>
                                     {/* Comment Icon and Count */}
                                     <div className="comments-info">
-                                        <FontAwesomeIcon icon={faComment} />{post.commentsCount}
+                                        <FontAwesomeIcon icon={faComment} /> {post.commentsCount}
                                     </div>
                                 </div>
                             </div>
