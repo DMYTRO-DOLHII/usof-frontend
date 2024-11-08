@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/header/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
+import PostCard from './components/PostCard';
 import './Home.css';
-import '../../App.css';
 import { decodeTokenLogin } from '../../utils/token';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 import { getAllPosts } from '../../store/slices/postSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,46 +16,27 @@ const Home = () => {
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [inputPage, setInputPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
 
-    const { posts, total } = useSelector(state => state.post);
+    const { posts, search, totalPages } = useSelector(state => state.post);
 
     const postLimit = 30;
-    const [offset, setOffset] = useState(0);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
-        dispatch(getAllPosts({offset: ((page - 1) * postLimit), limit: postLimit, search: ''}));
-    }, [page]);
+        dispatch(getAllPosts({offset: ((page - 1) * postLimit), limit: postLimit, search: search}));
+    }, []);
 
-    const handleCardClick = (postId) => {
-        navigate(`/posts/${postId}`);
-    };
-
-    const fetchPosts = async (page) => {
-        setLoading(true);
-        try {
-            const offset = (page - 1) * postLimit;
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?offset=${offset}&limit=${postLimit}`);
-            if (!response.ok) throw new Error('Error fetching posts');
-            const data = await response.json();
-            // setPosts(data.posts);
-            setTotalPages(data.pagination.totalItems / postLimit);
-            setInputPage(page);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+    const handleNextPage = () => {
+        if (page < totalPages) {
+            setPage(page + 1);
+            dispatch(getAllPosts({offset: ((page - 1) * postLimit), limit: postLimit, search: search}));
         }
     };
 
-    const handleNextPage = () => {
-        if (page < totalPages) setPage(page + 1);
-    };
-
     const handlePreviousPage = () => {
-        if (page > 1) setPage(page - 1);
+        if (page > 1) {
+            setPage(page - 1);
+            dispatch(getAllPosts({offset: ((page - 1) * postLimit), limit: postLimit, search: search}));
+        }
     };
 
     const handlePageInputChange = (e) => {
@@ -87,39 +66,7 @@ const Home = () => {
                 ) : (
                     <div className="row">
                         {posts.map((post) => (
-                            <div key={post.id} className="col-md-4 mb-4" onClick={() => handleCardClick(post.id)}>
-                                <div className={`card post-card ${post.status === 'active' ? 'hover-active' : 'hover-inactive'}`}>
-                                    <div className={`status-circle ${post.status === 'active' ? 'status-active' : 'status-inactive'}`}></div>
-                                    <div className="card-body">
-                                        <h5 className="card-title">{post.title}</h5>
-                                        <small className="text-muted">
-                                            Published on: {new Date(post.publishDate).toLocaleDateString()}
-                                        </small>
-                                        <div className="mt-2">
-                                            {post.categories && post.categories.length > 0 ? (
-                                                <ul className="category-list list-unstyled">
-                                                    {post.categories.map((category) => (
-                                                        <li key={category.id} className="category-item">
-                                                            {category.title}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            ) : (
-                                                <span>No categories available</span>
-                                            )}
-                                        </div>
-                                        {/* Likes and Dislikes */}
-                                        <div className="likes-info">
-                                            <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {post.likes}</div>
-                                            <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {post.dislikes}</div>
-                                        </div>
-                                    </div>
-                                    {/* Comment Icon and Count */}
-                                    <div className="comments-info">
-                                        <FontAwesomeIcon icon={faComment} /> {post.commentsCount}
-                                    </div>
-                                </div>
-                            </div>
+                            <PostCard post={post}></PostCard>
                         ))}
                     </div>
                 )}

@@ -1,33 +1,34 @@
 import { useDispatch, useSelector } from "react-redux";
-import { getAllPosts } from "../../../store/slices/postSlice";
+import { getAllPosts, setSearch } from "../../../store/slices/postSlice";
 import { useState, useEffect } from "react";
 
 const SearchInput = () => {
     const dispatch = useDispatch();
-    const [searchText, setSearchText] = useState("");
-    const { posts, total } = useSelector(state => state.post);
+    const { posts, total, search } = useSelector(state => state.post);
 
     useEffect(() => {
-        if (searchText) {
-            dispatch(getAllPosts({ offset: 2, limit: 30, search: searchText }));
+        if (search) {
+            dispatch(getAllPosts({ offset: 2, limit: 30, search }));
         }
-    }, [searchText]);
+    }, [search]);
 
-    console.log(searchText);
+    const handleSearchChange = (e) => {
+        const newSearchValue = e.target.value;
+        dispatch(setSearch(newSearchValue)); // Update the search state in Redux
+    };
+
+    console.log(search);
 
     return (
-        <div className="searchInput">
-            <div className="searchInput-wrapper">
+            <div className="d-flex me-auto ms-auto w-50">
                 <input
+                    className="form-control me-2 w-100"
                     id="search"
                     type="text"
-                    placeholder={""}
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder={"Search..."}
+                    value={search}
+                    onChange={handleSearchChange}
                 />
-            </div>
-
-
         </div>
     );
 };

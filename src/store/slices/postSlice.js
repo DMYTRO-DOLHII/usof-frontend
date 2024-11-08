@@ -1,15 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import $api from "../../api";
 
 export const getAllPosts = createAsyncThunk(
     "post/getAllPosts",
     async ({ offset = 0, limit = 30, search = '' }, { rejectWithValue, dispatch }) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts?offset=${offset}&limit=${limit}&search=${search}`);
-            const data = await response.json();
+            if (offset < 0) return;
+            const response = await $api.get(`/posts?offset=${offset}&limit=${limit}&search=${search}`);
 
-            dispatch(setPosts(data));
+            dispatch(setPosts(response.data));
+            dispatch(setTotalPages(Math.ceil(response.data.pagination.totalItems / limit)));
 
-            return response.status;
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -20,18 +22,28 @@ const post = createSlice({
     name: "post",
     initialState: {
         posts: [],
-        total: 0
+        total: 0,
+        search: '',
+        totalPages: 0,
     },
     reducers: {
         setPosts(state, { payload }) {
             state.posts = payload.posts;
             state.total = payload.pagination.totalItems
         },
+        setSearch(state, { payload }) {
+            state.search = payload;
+        },
+        setTotalPages(state, { payload }) {
+            state.totalPages = payload;
+        }
     },
 });
 
 export const {
     setPosts,
+    setSearch,
+    setTotalPages
 } = post.actions;
 
 export default post.reducer;

@@ -20,7 +20,7 @@ $api.interceptors.response.use(
         const request = error.config;
 
         if (error.response.status = 403) {
-            // TODO
+            console.log('No rights');
         }
 
         throw error;

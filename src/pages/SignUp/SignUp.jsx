@@ -6,7 +6,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import './SignUp.css';
 
 
-import Header from "../../components/header/Header";
+import Header from "../../components/Header/Header";
 
 const SignUp = () => {
     const [signUpData, setSignUpData] = useState({
