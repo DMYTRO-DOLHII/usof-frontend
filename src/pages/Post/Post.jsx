@@ -7,6 +7,7 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Comment from '../../components/Comment/Comment'; // Import the Comment component
 import './Post.css';
+import $api from '../../api';
 
 const Post = () => {
     const { postId } = useParams();
@@ -19,20 +20,22 @@ const Post = () => {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/posts/${postId}`);
+                const response = await $api.get(`/posts/${postId}`);
                 if (response.status === 404) {
                     navigate('/404');
                     return;
                 }
-                if (!response.ok) throw new Error('Error fetching post data');
-                const data = await response.json();
-                console.log(data);
+                const data = response.data;
                 setPost(data);
             } catch (err) {
-                setError(err.message);
+                if (err.response && err.response.status === 404) {
+                    navigate('/404');
+                } else {
+                    setError(err.message);
+                }
             } finally {
                 setLoading(false);
-            }
+            };
         };
 
         fetchPost();

@@ -7,7 +7,7 @@
 }
 
 .post-card:hover {
-    transform: scale(1.02) rotate(2deg) rotateX(5deg) rotateY(5deg);
+    transform: scale(1.02);
     cursor: pointer;
 }
 
