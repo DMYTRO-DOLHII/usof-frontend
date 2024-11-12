@@ -42,7 +42,7 @@ const SignUp = () => {
             return;
         }
 
-        const url = `${process.env.REACT_APP_BACK_URL}/api/auth/register`;
+        const url = `${process.env.REACT_APP_BACK_URL_API}/auth/register`;
 
         fetch(url, {
             method: 'POST',

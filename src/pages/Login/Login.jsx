@@ -21,7 +21,7 @@ const Login = () => {
         e.preventDefault();
         setError(""); // Clear any previous error message
 
-        const url = `${process.env.REACT_APP_BACK_URL}/api/auth/login`;
+        const url = `${process.env.REACT_APP_BACK_URL_API}/auth/login`;
 
         fetch(url, {
             method: 'POST',

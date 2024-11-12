@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import PostCard from './components/PostCard/PostCard';
-import Pagination from './components/Pagination/Pagination';  // Import the new Pagination component
+import Pagination from '../../components/Pagination/Pagination';
 import { getAllPosts } from '../../store/slices/postSlice';
 import './Home.css';
 
 const Home = () => {
     const dispatch = useDispatch();
     const { posts, search, totalPages } = useSelector(state => state.post);
+    const test = useSelector((state) => state.post);
 
     const postLimit = 30;
     const [page, setPage] = useState(1);

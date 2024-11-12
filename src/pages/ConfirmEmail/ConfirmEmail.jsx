@@ -23,7 +23,7 @@ const ConfirmEmail = () => {
 
     const confirmEmail = async (token) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/auth/confirm-email`, {
+            const response = await fetch(`${process.env.REACT_APP_BACK_URL_API}/api/auth/confirm-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

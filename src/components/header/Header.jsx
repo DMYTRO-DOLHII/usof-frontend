@@ -5,6 +5,7 @@ import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
 import SearchInput from './components/SearchInput';
 import { decodeToken } from '../../utils/token';
+import $api from '../../api';
 
 const Header = ({ hideAuthorizationButtons }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,10 +23,11 @@ const Header = ({ hideAuthorizationButtons }) => {
 
     const fetchMe = async (id) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/users/${id}`);
-            if (!response.ok) throw new Error('Error fetching user info');
-            const data = await response.json();
-            setUser(data); // Set the user information in state
+            const response = await $api.get(`/users/${id}`);
+            console.log(response.status);
+            if (response.status != 200) throw new Error('Error fetching user info');
+            const data = response.data;
+            setUser(data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -53,17 +55,6 @@ const Header = ({ hideAuthorizationButtons }) => {
                     McOk
                 </a>
 
-                {/* <form className="d-flex me-auto ms-auto w-50" role="search">
-                    <input
-                        className="form-control me-2 w-100"
-                        type="search"
-                        placeholder="Search..."
-                        aria-label="Search"
-                    />
-                    <button className="btn btn-outline-success" type="submit">
-                        Search
-                    </button>
-                </form> */}
                 <SearchInput />
 
                 {!hideAuthorizationButtons && (
@@ -73,7 +64,7 @@ const Header = ({ hideAuthorizationButtons }) => {
                                 <img
                                     src={isValidUrl(user.profilePicture)
                                         ? user.profilePicture
-                                        : `${process.env.REACT_APP_BACK_URL}/${user.profilePicture}`}
+                                        : `${process.env.REACT_APP_BACK_URL_IMG}/${user.profilePicture}`}
                                     alt="Profile"
                                     className="profile-icon"
                                 />

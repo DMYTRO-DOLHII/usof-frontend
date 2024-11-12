@@ -12,12 +12,12 @@ import {
 import storage from "redux-persist/lib/storage";
 import loggerMiddleware from "redux-logger";
 
-// TODO
 import post from "./slices/postSlice";
-// import user from ""
+import user from "./slices/userSlice";
 
 const combinedReducer = combineReducers({
-    post,
+    post: post,
+    user: user
 });
 const persistConfig = {
     key: "manag",

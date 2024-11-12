@@ -4,6 +4,7 @@ import './Account.css';
 import { decodeToken } from '../../utils/token';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import $api from '../../api';
 
 const Account = () => {
     const [user, setUser] = useState(null);
@@ -18,9 +19,9 @@ const Account = () => {
 
     const fetchMe = async (token) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/users/${token}`);
-            if (!response.ok) throw new Error('Error fetching user info');
-            const data = await response.json();
+            const response = await $api.get(`/users/${token}`);
+            if (response.status != 200) throw new Error('Error fetching user info');
+            const data = response.data;
             setUser(data);
             document.cookie = `fullName=${encodeURIComponent(data.fullName)}; path=/; max-age=86400`;
         } catch (err) {
@@ -30,10 +31,8 @@ const Account = () => {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/auth/logout`, {
-                method: 'POST',
-            });
-            if (response.ok) {
+            const response = await $api.post(`/auth/logout`);
+            if (response.status === 200) {
                 localStorage.removeItem('token');
                 navigate('/');
             } else {
@@ -52,15 +51,13 @@ const Account = () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL}/api/users/avatar`, {
-                method: 'PATCH',
+            const response = await $api.patch('/users/avatar', formData, {
                 headers: {
-                    'Authorization': `${token}`,
-                },
-                body: formData,
+                    'Content-Type': 'multipart/form-data'
+                }
             });
-            if (response.ok) {
-                const data = await response.json();
+            if (response.status == 200) {
+                const data = response.data;
                 setUser(data.user);
             } else {
                 setError('Failed to update profile picture');
@@ -93,7 +90,7 @@ const Account = () => {
 
     return (
         <>
-            <Header />
+            <Header hideAuthorizationButtons={true}/>
             <div className="account-page container">
                 <h1>Account Information</h1>
                 <div className="profile-container">
@@ -101,7 +98,7 @@ const Account = () => {
                         <img
                             src={isValidUrl(user.profilePicture)
                                 ? user.profilePicture
-                                : `${process.env.REACT_APP_BACK_URL}/${user.profilePicture}`}
+                                : `${process.env.REACT_APP_BACK_URL_IMG}/${user.profilePicture}`}
                             alt="Profile"
                         />
                         <input

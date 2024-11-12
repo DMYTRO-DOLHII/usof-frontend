@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_BACK_URL;
+const API_URL = process.env.REACT_APP_BACK_URL_API;
 
 const $api = axios.create({
     withCredentials: true,
@@ -8,7 +8,7 @@ const $api = axios.create({
 });
 
 $api.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+    config.headers.Authorization = `${localStorage.getItem('token')}`;
     return config;
 })
 

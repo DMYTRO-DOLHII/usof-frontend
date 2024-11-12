@@ -17,8 +17,6 @@ const SearchInput = () => {
         dispatch(setSearch(newSearchValue)); // Update the search state in Redux
     };
 
-    console.log(search);
-
     return (
             <div className="d-flex me-auto ms-auto w-50">
                 <input
