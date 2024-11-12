@@ -1,17 +1,28 @@
 .post-content {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
+}
+
+.post-card-single {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .post-title {
     font-size: 2rem;
     margin-bottom: 10px;
+    color: #333;
 }
 
 .post-meta {
     font-size: 0.9rem;
     margin-bottom: 20px;
+    color: #666;
 }
 
 .status {
@@ -30,4 +41,99 @@
     font-size: 1.1rem;
     line-height: 1.6;
     color: #333;
+}
+
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.sort-container label {
+    font-size: 1rem;
+    color: #555;
+    font-weight: bold;
+}
+
+.sort-dropdown {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.sort-dropdown:hover {
+    background-color: #f1f1f1;
+}
+
+.comment-card {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 60px;
+}
+
+.comment-content {
+    max-width: 80%;
+}
+
+.comment-title {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.comment-meta {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.comment-likes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comment-likes .fa-chevron-up,
+.comment-likes .fa-chevron-down {
+    color: #888;
+    cursor: pointer;
+}
+
+.comment-likes .fa-chevron-up:hover {
+    color: #28a745;
+}
+
+.comment-likes .fa-chevron-down:hover {
+    color: #dc3545;
+}
+
+.status-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #6c757d;
+}
+
+.status-indicator.active {
+    background-color: #28a745;
+}
+
+.status-indicator.inactive {
+    background-color: #6c757d;
 }
