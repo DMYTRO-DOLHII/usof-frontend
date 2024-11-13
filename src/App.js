@@ -6,6 +6,7 @@ import Account from './pages/Account/Account';
 import Post from './pages/Post/Post';
 import Users from './pages/Users/Users';
 import ConfirmEmail from './pages/ConfirmEmail/ConfirmEmail'
+import CreatePost from './pages/CreatePost/CreatePost'
 import NotFound from './pages/NotFound/NotFound';
 
 import store, { persistor } from "./store/store";
@@ -27,6 +28,7 @@ const App = () => {
                         <Route path="/posts/:postId" element={<Post />} />
                         <Route path='/users' element={<Users />} />
                         <Route path="/confirm-email" element={<ConfirmEmail />} />
+                        <Route path="/create-post" element={<CreatePost />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>
                 </Router>

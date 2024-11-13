@@ -99,6 +99,10 @@ const Post = () => {
                                 {post.status}
                             </span>
                         </p>
+                        <div className="likes-info">
+                            <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /></div>
+                            <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {post.dislikes}</div>
+                        </div>
                         <div className="post-body">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {post.content}

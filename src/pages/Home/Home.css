@@ -63,14 +63,16 @@ h1 {
 }
 
 .likes-info {
-    position: absolute;
-    bottom: 3px;
-    left: 15px;
     display: flex;
     gap: 15px;
     align-items: center;
     font-size: 14px;
     color: #0800a7;
+}
+
+.user-info {
+    margin-top: 10px;
+    left: 15px;
 }
 
 .like-icon,

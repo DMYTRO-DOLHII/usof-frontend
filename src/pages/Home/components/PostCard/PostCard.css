@@ -102,3 +102,7 @@
     color: #888;
     font-size: 0.85rem;
 }
+
+.user-info img {
+    object-fit: cover;
+}

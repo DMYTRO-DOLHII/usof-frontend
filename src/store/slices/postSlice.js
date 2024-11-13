@@ -8,9 +8,23 @@ export const getAllPosts = createAsyncThunk(
             if (offset < 0) return;
             const response = await $api.get(`/posts?offset=${offset}&limit=${limit}&search=${search}`);
 
+            console.log(response.data)
+
             dispatch(setPosts(response.data));
             dispatch(setTotalPages(Math.ceil(response.data.pagination.totalItems / limit)));
 
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const createPost = createAsyncThunk(
+    "post/createPost",
+    async ({ title, content, category }, { rejectWithValue }) => {
+        try {
+            const response = await $api.post('/posts', { title, content, category });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -37,6 +51,15 @@ const post = createSlice({
         setTotalPages(state, { payload }) {
             state.totalPages = payload;
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(createPost.fulfilled, (state, action) => {
+                state.posts.unshift(action.payload);
+            })
+            .addCase(createPost.rejected, (state, action) => {
+                console.error("Failed to create post:", action.payload);
+            });
     },
 });
 

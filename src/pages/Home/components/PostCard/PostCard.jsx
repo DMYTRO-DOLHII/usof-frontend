@@ -1,6 +1,7 @@
 import { faChevronUp, faChevronDown, faComment } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import './PostCard.css'
 
 const PostCard = ({ post }) => {
@@ -8,6 +9,16 @@ const PostCard = ({ post }) => {
 
     const handleCardClick = (postId) => {
         navigate(`/posts/${postId}`);
+    };
+
+    const isValidUrl = (string) => {
+        try {
+            console.log(string)
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
     };
 
     return (
@@ -36,6 +47,21 @@ const PostCard = ({ post }) => {
                     <div className="likes-info">
                         <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {post.likes}</div>
                         <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {post.dislikes}</div>
+                    </div>
+
+                    {/* Display User Information */}
+                    <div className="d-flex align-items-center user-info">
+                        <img
+                            src={isValidUrl(post.user.profilePicture)
+                                ? post.user.profilePicture
+                                : `${process.env.REACT_APP_BACK_URL_IMG}/${post.user.profilePicture}`}
+                            alt={post.user.login}
+                            className="rounded-circle me-2"
+                            style={{ width: '30px', height: '30px' }}
+                        />
+                        <Link to={`/users/${post.user.id}`} className="text-decoration-none">
+                            {post.user.login}
+                        </Link>
                     </div>
                 </div>
                 {/* Comment Icon and Count */}
