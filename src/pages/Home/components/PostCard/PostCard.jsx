@@ -57,7 +57,7 @@ const PostCard = ({ post }) => {
                                 : `${process.env.REACT_APP_BACK_URL_IMG}/${post.user.profilePicture}`}
                             alt={post.user.login}
                             className="rounded-circle me-2"
-                            style={{ width: '30px', height: '30px' }}
+                            style={{ width: '20px', height: '20px' }}
                         />
                         <Link to={`/users/${post.user.id}`} className="text-decoration-none">
                             {post.user.login}

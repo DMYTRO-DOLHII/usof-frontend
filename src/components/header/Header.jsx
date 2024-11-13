@@ -24,7 +24,6 @@ const Header = ({ hideAuthorizationButtons }) => {
     const fetchMe = async (id) => {
         try {
             const response = await $api.get(`/users/${id}`);
-            console.log(response.status);
             if (response.status != 200) throw new Error('Error fetching user info');
             const data = response.data;
             setUser(data);
