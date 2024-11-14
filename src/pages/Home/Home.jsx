@@ -7,6 +7,7 @@ import Pagination from '../../components/Pagination/Pagination';
 import { getAllPosts } from '../../store/slices/postSlice';
 import './Home.css';
 import { useNavigate } from 'react-router-dom';
+import { decodeToken } from '../../utils/token';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -40,7 +41,14 @@ const Home = () => {
         <div className="d-flex flex-column min-vh-100">
             <Header />
             <div className="container my-5">
-                <h1>Welcome to McOk</h1>
+                <h1>
+                    Welcome to McOk {token && (
+                        <>
+                        ,
+                            <span className='gradient'> {decodeToken(token).login}</span>
+                        </>
+                    )}
+                </h1>
 
                 {token && (
                     <button onClick={handleCreatePost} className="btn btn-primary mb-4">

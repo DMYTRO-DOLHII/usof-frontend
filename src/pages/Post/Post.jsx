@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,9 +7,8 @@ import { faChevronUp, faChevronDown, faTrash } from '@fortawesome/free-solid-svg
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
-import './Post.css';
-import { jwtDecode } from 'jwt-decode';
 import { decodeToken } from '../../utils/token';
+import './Post.css';
 
 const Post = () => {
     const { postId } = useParams();
@@ -20,11 +19,11 @@ const Post = () => {
     const [error, setError] = useState(null);
     const [commentsError, setCommentsError] = useState(null);
     const [sortOrder, setSortOrder] = useState('dateCreated');
-    const [user, setUser] = useState(null); // Store user info
+    const [userLikeStatus, setUserLikeStatus] = useState(null);
+    const [user, setUser] = useState(null);
 
     const navigate = useNavigate();
 
-    // Fetch user info on mount
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -59,19 +58,6 @@ const Post = () => {
         fetchPost();
     }, [postId, navigate]);
 
-    const fetchComments = async () => {
-        setCommentsLoading(true);
-        try {
-            const response = await $api.get(`/posts/${postId}/comments`);
-            const sortedComments = sortComments(response.data, sortOrder);
-            setComments(sortedComments);
-        } catch (err) {
-            setCommentsError(err.message);
-        } finally {
-            setCommentsLoading(false);
-        }
-    };
-
     const sortComments = (comments, order) => {
         switch (order) {
             case 'highestScore':
@@ -85,11 +71,31 @@ const Post = () => {
     };
 
     useEffect(() => {
+        const fetchComments = async () => {
+            setCommentsLoading(true);
+            try {
+                const response = await $api.get(`/posts/${postId}/comments`);
+                console.log(response.data);
+                const sortedComments = sortComments(response.data, sortOrder);
+                setComments(sortedComments);
+            } catch (err) {
+                setCommentsError(err.message);
+            } finally {
+                setCommentsLoading(false);
+            }
+        };
+
         fetchComments();
     }, [sortOrder]);
 
     const handleSortChange = (e) => {
         setSortOrder(e.target.value);
+    };
+
+    const determineUserLikeStatus = (likes) => {
+        if (!user) return;
+        const userLike = likes.find(like => like.userId === user.id);
+        setUserLikeStatus(userLike ? userLike.type : null);
     };
 
     const countLikesDislikes = (likes) => {
@@ -101,22 +107,57 @@ const Post = () => {
         return { likeCount, dislikeCount };
     };
 
-    // Function to delete post
+    const isValidUrl = (string) => {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+
+    const handleLikeDislike = async (type) => {
+        if (!user) return;
+
+        try {
+            const response = await $api.post(`/posts/${postId}/like`, { type });
+            setUserLikeStatus(type);
+
+            if (type === 'like') {
+                if (userLikeStatus === 'dislike') {
+                    setPost(prev => ({ ...prev, likes: { ...prev.likes, likeCount: prev.likes.likeCount + 1, dislikeCount: prev.likes.dislikeCount - 1 } }));
+                } else if (userLikeStatus === null) {
+                    setPost(prev => ({ ...prev, likes: { ...prev.likes, likeCount: prev.likes.likeCount + 1 } }));
+                }
+            } else if (type === 'dislike') {
+                if (userLikeStatus === 'like') {
+                    setPost(prev => ({ ...prev, likes: { ...prev.likes, likeCount: prev.likes.likeCount - 1, dislikeCount: prev.likes.dislikeCount + 1 } }));
+                } else if (userLikeStatus === null) {
+                    setPost(prev => ({ ...prev, likes: { ...prev.likes, dislikeCount: prev.likes.dislikeCount + 1 } }));
+                }
+            }
+        } catch (err) {
+            console.error('Failed to like/dislike post:', err);
+        }
+    };
+
     const handleDeletePost = async () => {
         try {
             await $api.delete(`/posts/${postId}`);
-            navigate('/'); // Redirect to home after deletion
+            navigate('/');
         } catch (err) {
             console.error('Failed to delete post:', err);
         }
     };
 
-    // Check if loading or if there was an error
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
 
-    // Check if user is either the post creator or an admin
-    const isCreatorOrAdmin = user && (user.id === post?.creatorId || user.role === 'admin');
+    const isLiked = userLikeStatus === 'like';
+    const isDisliked = userLikeStatus === 'dislike';
+
+    const isCreatorOrAdmin = user && (user.id === post?.userId || user.role === 'admin');
+    const postLikes = post ? countLikesDislikes(post.likes) : { likeCount: 0, dislikeCount: 0 };
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -126,16 +167,42 @@ const Post = () => {
                     <div className="post-card-single">
                         <h1 className="post-title gradient">{post.title}</h1>
                         <p className="post-meta">
-                            Published on: {new Date(post.publishDate).toLocaleDateString()} | Status:
+                            Published on: {new Date(post.publishDate).toLocaleDateString()}
+                        </p>
+                        <p>
+                            Status:
                             <span className={`status ${post.status === 'active' ? 'status-active-text' : 'status-inactive-text'}`}>
                                 {post.status}
                             </span>
                         </p>
-
                         <div className="post-body">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {post.content}
                             </ReactMarkdown>
+                        </div>
+
+                        <div className="post-likes">
+                            <span
+                                onClick={() => handleLikeDislike('like')}
+                                className={`like-icon ${userLikeStatus === 'like' ? 'active-like' : ''}`}
+                            >
+                                <FontAwesomeIcon icon={faChevronUp} /> {postLikes.likeCount}
+                            </span>
+                            <span
+                                onClick={() => handleLikeDislike('dislike')}
+                                className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''}`}
+                            >
+                                <FontAwesomeIcon icon={faChevronDown} /> {postLikes.dislikeCount}
+                            </span>
+                        </div>
+
+                        <div className="post-user-info">
+                            <img
+                                src={isValidUrl(post.user.profilePicture)
+                                    ? post.user.profilePicture
+                                    : `${process.env.REACT_APP_BACK_URL_IMG}/${post.user.profilePicture}`}
+                                className="user-avatar" />
+                            <Link to={`/users/${post.user.id}`}>{post.user.login}</Link>
                         </div>
 
                         {isCreatorOrAdmin && (

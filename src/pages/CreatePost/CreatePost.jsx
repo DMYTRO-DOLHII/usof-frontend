@@ -69,7 +69,7 @@ const CreatePost = () => {
         <>
             <Header />
             <div className="container my-5">
-                <h2>Create a New Post</h2>
+                <h2>Create New Post</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group-post">
                         <label>Title</label>
