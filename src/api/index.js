@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACK_URL_API;
 
@@ -17,13 +18,32 @@ $api.interceptors.response.use(
         return config;
     },
     async (error) => {
-        const request = error.config;
+        const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const token = localStorage.getItem('token');
+                const refreshResponse = await axios.post(`${API_URL}/auth/refresh`, { token });
+                const newToken = refreshResponse.data.token;
 
-        if (error.response.status = 403) {
+                localStorage.setItem('token', newToken);
+                originalRequest.headers.Authorization = `${newToken}`;
+                return $api(originalRequest);
+            } catch (refreshError) {
+                localStorage.removeItem('token');
+                const navigate = useNavigate();
+                navigate('/login');
+
+                console.log('We should be on the login page.');
+                return Promise.reject(refreshError);
+            }
+        }
+
+        if (error.response && error.response.status === 403) {
             console.log('No rights');
         }
 
-        throw error;
+        return Promise.reject(error);
     }
 );
 

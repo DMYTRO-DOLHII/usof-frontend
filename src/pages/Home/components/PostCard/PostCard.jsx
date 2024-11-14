@@ -13,7 +13,6 @@ const PostCard = ({ post }) => {
 
     const isValidUrl = (string) => {
         try {
-            console.log(string)
             new URL(string);
             return true;
         } catch (_) {

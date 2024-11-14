@@ -29,6 +29,7 @@ h2 {
     position: absolute;
     background-color: white;
     border: 1px solid #ddd;
+    max-width: 60%;
     max-height: 200px;
     overflow-y: auto;
     z-index: 1;
