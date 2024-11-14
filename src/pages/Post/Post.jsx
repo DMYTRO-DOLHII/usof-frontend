@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
@@ -9,8 +10,17 @@ import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
 import { decodeToken } from '../../utils/token';
 import './Post.css';
+import { marked } from 'marked';
+
+marked.setOptions({
+    gfm: true,
+    breaks: true,
+    sanitize: false,
+});
 
 const Post = () => {
+    const token = localStorage.getItem('token');
+
     const { postId } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
@@ -21,25 +31,25 @@ const Post = () => {
     const [sortOrder, setSortOrder] = useState('dateCreated');
     const [userLikeStatus, setUserLikeStatus] = useState(null);
     const [user, setUser] = useState(null);
+    const [isLiked, setIsLiked] = useState(false);
+    const [isDisliked, setIsDisliked] = useState(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchUser = async () => {
+        // Decode token if exists and set user info
+        const fetchUser = () => {
             try {
-                if (localStorage.getItem('token')) {
-                    const user = decodeToken(localStorage.getItem('token'));
-                    setUser(user);
+                if (token) {
+                    const decodedUser = decodeToken(token);
+                    setUser(decodedUser);
                 }
             } catch (err) {
                 console.error('Failed to fetch user:', err);
             }
         };
 
-        fetchUser();
-    }, []);
-
-    useEffect(() => {
+        // Fetch post data and determine if user has liked/disliked the post
         const fetchPost = async () => {
             try {
                 const response = await $api.get(`/posts/${postId}`);
@@ -48,6 +58,7 @@ const Post = () => {
                     return;
                 }
                 setPost(response.data);
+                determineUserLikeStatus(response.data.likes);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -55,8 +66,19 @@ const Post = () => {
             }
         };
 
+        fetchUser();
         fetchPost();
     }, [postId, navigate]);
+
+    const determineUserLikeStatus = (likes) => {
+        if (!post.user) return;
+        const userLike = likes.find(like => like.userId === post.user.id);
+        if (userLike) {
+            setUserLikeStatus(userLike.type);
+            setIsLiked(userLike.type === 'like');
+            setIsDisliked(userLike.type === 'dislike');
+        }
+    };
 
     const sortComments = (comments, order) => {
         switch (order) {
@@ -70,32 +92,8 @@ const Post = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            setCommentsLoading(true);
-            try {
-                const response = await $api.get(`/posts/${postId}/comments`);
-                console.log(response.data);
-                const sortedComments = sortComments(response.data, sortOrder);
-                setComments(sortedComments);
-            } catch (err) {
-                setCommentsError(err.message);
-            } finally {
-                setCommentsLoading(false);
-            }
-        };
-
-        fetchComments();
-    }, [sortOrder]);
-
     const handleSortChange = (e) => {
         setSortOrder(e.target.value);
-    };
-
-    const determineUserLikeStatus = (likes) => {
-        if (!user) return;
-        const userLike = likes.find(like => like.userId === user.id);
-        setUserLikeStatus(userLike ? userLike.type : null);
     };
 
     const countLikesDislikes = (likes) => {
@@ -122,20 +120,8 @@ const Post = () => {
         try {
             const response = await $api.post(`/posts/${postId}/like`, { type });
             setUserLikeStatus(type);
-
-            if (type === 'like') {
-                if (userLikeStatus === 'dislike') {
-                    setPost(prev => ({ ...prev, likes: { ...prev.likes, likeCount: prev.likes.likeCount + 1, dislikeCount: prev.likes.dislikeCount - 1 } }));
-                } else if (userLikeStatus === null) {
-                    setPost(prev => ({ ...prev, likes: { ...prev.likes, likeCount: prev.likes.likeCount + 1 } }));
-                }
-            } else if (type === 'dislike') {
-                if (userLikeStatus === 'like') {
-                    setPost(prev => ({ ...prev, likes: { ...prev.likes, likeCount: prev.likes.likeCount - 1, dislikeCount: prev.likes.dislikeCount + 1 } }));
-                } else if (userLikeStatus === null) {
-                    setPost(prev => ({ ...prev, likes: { ...prev.likes, dislikeCount: prev.likes.dislikeCount + 1 } }));
-                }
-            }
+            setIsLiked(type === 'like');
+            setIsDisliked(type === 'dislike');
         } catch (err) {
             console.error('Failed to like/dislike post:', err);
         }
@@ -152,9 +138,6 @@ const Post = () => {
 
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
-
-    const isLiked = userLikeStatus === 'like';
-    const isDisliked = userLikeStatus === 'dislike';
 
     const isCreatorOrAdmin = user && (user.id === post?.userId || user.role === 'admin');
     const postLikes = post ? countLikesDislikes(post.likes) : { likeCount: 0, dislikeCount: 0 };
@@ -175,24 +158,26 @@ const Post = () => {
                                 {post.status}
                             </span>
                         </p>
-                        <div className="post-body">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {post.content}
-                            </ReactMarkdown>
+                        <div className="post-body" dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
+
                         </div>
 
                         <div className="post-likes">
                             <span
                                 onClick={() => handleLikeDislike('like')}
-                                className={`like-icon ${userLikeStatus === 'like' ? 'active-like' : ''}`}
                             >
-                                <FontAwesomeIcon icon={faChevronUp} /> {postLikes.likeCount}
+                                <FontAwesomeIcon
+                                    icon={faChevronUp}
+                                    className={`like-icon ${userLikeStatus === 'like' ? 'active-like' : ''}`}
+                                /> {postLikes.likeCount}
                             </span>
                             <span
                                 onClick={() => handleLikeDislike('dislike')}
-                                className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''}`}
                             >
-                                <FontAwesomeIcon icon={faChevronDown} /> {postLikes.dislikeCount}
+                                <FontAwesomeIcon
+                                    icon={faChevronDown}
+                                    className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''}`}
+                                /> {postLikes.dislikeCount}
                             </span>
                         </div>
 

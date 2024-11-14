@@ -29,7 +29,30 @@
     display: flex;
     gap: 15px;
     align-items: center;
-    font-size: 25px;
+    font-size: 20px;
+}
+
+.post-likes .like-icon,
+.post-likes .dislike-icon {
+    transition: .3s;
+}
+
+.post-likes .like-icon:hover {
+    cursor: pointer;
+    color: #28a745;
+}
+
+.post-likes .dislike-icon:hover {
+    cursor: pointer;
+    color: #c22f2f;
+}
+
+.post-likes .active-like {
+    color: #28a745;
+}
+
+.post-likes .active-dislike {
+    color: #c22f2f;
 }
 
 .post-user-info {

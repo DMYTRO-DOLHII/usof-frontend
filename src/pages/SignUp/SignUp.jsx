@@ -66,7 +66,6 @@ const SignUp = () => {
                 return response.json();
             })
             .then(data => {
-                console.log("Response:", data);
                 setSuccess(data.message);
             })
             .catch(error => {

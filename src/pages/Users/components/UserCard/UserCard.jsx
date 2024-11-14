@@ -4,7 +4,6 @@ import './UserCard.css'
 const UserCard = ({ user }) => {
     const isValidUrl = (string) => {
         try {
-            console.log(string)
             new URL(string);
             return true;
         } catch (_) {
