@@ -14,7 +14,7 @@ const Account = () => {
     const fileInputRef = useRef(null); // Reference for the hidden file input
 
     useEffect(() => {
-        if (token) fetchMe(decodeToken(token));
+        if (token) fetchMe(decodeToken(token).id);
     }, []);
 
     const fetchMe = async (token) => {

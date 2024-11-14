@@ -14,7 +14,7 @@ const Header = ({ hideAuthorizationButtons }) => {
     const token = localStorage.getItem('token');
 
     useEffect(() => {
-        if (token) fetchMe(decodeToken(token));
+        if (token) fetchMe(decodeToken(token).id);
     }, []);
 
     const toggleOverlay = () => {

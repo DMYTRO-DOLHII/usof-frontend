@@ -31,10 +31,6 @@ $api.interceptors.response.use(
                 return $api(originalRequest);
             } catch (refreshError) {
                 localStorage.removeItem('token');
-                const navigate = useNavigate();
-                navigate('/login');
-
-                console.log('We should be on the login page.');
                 return Promise.reject(refreshError);
             }
         }

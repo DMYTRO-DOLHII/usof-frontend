@@ -41,7 +41,7 @@ const CreatePost = () => {
         setCategoryInput('');
         setShowSuggestions(false);
         dispatch(clearCategories());
-        setShowWarning(false); // Hide warning when a category is selected
+        setShowWarning(false);
     };
 
     const handleRemoveCategory = (id) => {
@@ -51,17 +51,14 @@ const CreatePost = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (selectedCategories.length === 0) {
-            setShowWarning(true); // Show warning if no category is selected
+            setShowWarning(true);
             return;
         }
 
-        const categoryTitles = selectedCategories.map(cat => cat.title);
-
-        console.log(categoryTitles);
+        const categoryIdx = selectedCategories.map(cat => cat.id);
 
         try {
-            const response = await $api.post('/posts', { title, content, categories: categoryTitles });
-            console.log(response);
+            const response = await $api.post('/posts', { title, content, categories: categoryIdx });
             navigate('/');
         } catch (error) {
             console.error(error);
@@ -118,7 +115,6 @@ const CreatePost = () => {
                                 ))}
                             </div>
                         )}
-                        {/* Warning message if no categories are selected */}
                         {showWarning && (
                             <p className="warning-text">Please select at least one category.</p>
                         )}

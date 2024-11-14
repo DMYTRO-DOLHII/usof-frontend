@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
 import './Post.css';
+import { jwtDecode } from 'jwt-decode';
+import { decodeToken } from '../../utils/token';
 
 const Post = () => {
     const { postId } = useParams();
@@ -18,8 +20,25 @@ const Post = () => {
     const [error, setError] = useState(null);
     const [commentsError, setCommentsError] = useState(null);
     const [sortOrder, setSortOrder] = useState('dateCreated');
+    const [user, setUser] = useState(null); // Store user info
 
     const navigate = useNavigate();
+
+    // Fetch user info on mount
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                if (localStorage.getItem('token')) {
+                    const user = decodeToken(localStorage.getItem('token'));
+                    setUser(user);
+                }
+            } catch (err) {
+                console.error('Failed to fetch user:', err);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -73,7 +92,6 @@ const Post = () => {
         setSortOrder(e.target.value);
     };
 
-
     const countLikesDislikes = (likes) => {
         let likeCount = 0, dislikeCount = 0;
         likes.forEach(like => {
@@ -83,8 +101,22 @@ const Post = () => {
         return { likeCount, dislikeCount };
     };
 
+    // Function to delete post
+    const handleDeletePost = async () => {
+        try {
+            await $api.delete(`/posts/${postId}`);
+            navigate('/'); // Redirect to home after deletion
+        } catch (err) {
+            console.error('Failed to delete post:', err);
+        }
+    };
+
+    // Check if loading or if there was an error
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
+
+    // Check if user is either the post creator or an admin
+    const isCreatorOrAdmin = user && (user.id === post?.creatorId || user.role === 'admin');
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -99,15 +131,18 @@ const Post = () => {
                                 {post.status}
                             </span>
                         </p>
-                        <div className="likes-info">
-                            <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /></div>
-                            <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {post.dislikes}</div>
-                        </div>
+
                         <div className="post-body">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {post.content}
                             </ReactMarkdown>
                         </div>
+
+                        {isCreatorOrAdmin && (
+                            <button onClick={handleDeletePost} className="btn btn-danger">
+                                <FontAwesomeIcon icon={faTrash} /> Delete Post
+                            </button>
+                        )}
                     </div>
                 )}
 
