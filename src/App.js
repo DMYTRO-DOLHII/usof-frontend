@@ -5,6 +5,7 @@ import SignUp from './pages/SignUp/SignUp';
 import Account from './pages/Account/Account';
 import Post from './pages/Post/Post';
 import Users from './pages/Users/Users';
+import UserPage from './pages/UserPage/UserPage';
 import ConfirmEmail from './pages/ConfirmEmail/ConfirmEmail'
 import CreatePost from './pages/CreatePost/CreatePost'
 import NotFound from './pages/NotFound/NotFound';
@@ -28,13 +29,14 @@ const App = () => {
                         <Route path="/account" element={<Account />} />
                         <Route path="/posts/:postId" element={<Post />} />
                         <Route path='/users' element={<Users />} />
+                        <Route path='/users/:userId' element={<UserPage />} />
                         <Route path="/confirm-email" element={<ConfirmEmail />} />
                         <Route path="/create-post" element={<CreatePost />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>
                 </Router>
             </PersistGate>
-        </Provider>
+        </Provider >
     );
 };
 

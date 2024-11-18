@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import './ConfirmEmail.css';
+import $api from '../../api';
 
 const ConfirmEmail = () => {
     const [message, setMessage] = useState('Verifying email...');
@@ -23,15 +24,10 @@ const ConfirmEmail = () => {
 
     const confirmEmail = async (token) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BACK_URL_API}/api/auth/confirm-email`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token })
-            });
+            const response = await $api.post('/auth/confirm-email', { token })
 
-            if (response.ok) {
+
+            if (response.status === 200) {
                 setMessage('Your email confirmation was successful!');
             } else {
                 setMessage('Email confirmation failed. Please try again or contact support.');

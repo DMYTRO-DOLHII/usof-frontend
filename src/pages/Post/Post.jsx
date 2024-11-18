@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
@@ -40,8 +37,9 @@ const Post = () => {
     const [sortOrder, setSortOrder] = useState('dateCreated');
     const [userLikeStatus, setUserLikeStatus] = useState(null);
     const [user, setUser] = useState(null);
-    const [isLiked, setIsLiked] = useState(false);
-    const [isDisliked, setIsDisliked] = useState(false);
+
+    const [isPostCreator, setIsPostCreator] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const navigate = useNavigate();
 
@@ -89,15 +87,14 @@ const Post = () => {
     }, [postId, navigate]);
 
     useEffect(() => {
-        const determineUserLikeStatus = () => {
-            if (!post) return;
-            const userLike = post.likes.find(like => like.userId === user.id);
-            if (userLike) {
-                setUserLikeStatus(userLike.type);
-            }
+        if (!post || !user) return;
+        const userLike = post.likes.find(like => like.userId === user.id);
+        if (userLike) {
+            setUserLikeStatus(userLike.type);
         }
 
-        determineUserLikeStatus();
+        setIsPostCreator(user && user.id === post.userId);
+        setIsAdmin(user && user.role === 'admin');
     });
 
     useEffect(() => {
@@ -145,7 +142,6 @@ const Post = () => {
 
         try {
             const response = await $api.post(`/posts/${postId}/like`, { type });
-            console.log(response.data);
 
             if (type === userLikeStatus) {
                 setPost((prevPost) => ({
@@ -203,10 +199,20 @@ const Post = () => {
         }
     };
 
+    const handleDeleteComment = async (commentId) => {
+
+        try {
+            await $api.delete(`/comments/${commentId}`);
+            setComments((prevComments) => prevComments.filter((c) => c.id !== commentId));
+        } catch (err) {
+            console.error('Failed to delete comment:', err);
+            alert('Failed to delete the comment. Please try again.');
+        }
+    };
+
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
 
-    const isCreatorOrAdmin = user && (user.id === post?.userId || user.role === 'admin');
     const postLikes = post ? countLikesDislikes(post.likes) : { likeCount: 0, dislikeCount: 0 };
 
     return (
@@ -257,10 +263,15 @@ const Post = () => {
                             <Link to={`/users/${post.user.id}`}>{post.user.login}</Link>
                         </div>
 
-                        {isCreatorOrAdmin && (
-                            <button onClick={handleDeletePost} className="btn btn-danger">
-                                <FontAwesomeIcon icon={faTrash} /> Delete Post
-                            </button>
+                        {(isPostCreator || isAdmin) && (
+                            <>
+                                <button onClick={handleDeletePost} className="btn btn-danger">
+                                    <FontAwesomeIcon icon={faTrash} /> Delete Post
+                                </button>
+                                <button className="btn btn-primary button-edit">
+                                    <FontAwesomeIcon icon={faEdit} /> Edit
+                                </button>
+                            </>
                         )}
                     </div>
                 )}
@@ -290,6 +301,15 @@ const Post = () => {
                                         <div className="comment-meta">
                                             Published on: {new Date(comment.publishDate).toLocaleDateString()}
                                         </div>
+                                        {(user && (comment.userId === user.id || isAdmin)) && (
+                                            <button className="btn btn-danger delete-comment">
+                                                <FontAwesomeIcon
+                                                    icon={faTrash}
+                                                    className='delete-comment-icon'
+                                                    onClick={() => handleDeleteComment(comment.id)}
+                                                />
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="comment-likes">
                                         <span>

@@ -40,19 +40,21 @@
 .post-likes .like-icon:hover {
     cursor: pointer;
     color: #28a745;
+    transform: scale(1.2);
 }
 
 .post-likes .dislike-icon:hover {
     cursor: pointer;
     color: #c22f2f;
+    transform: scale(1.2);
 }
 
 .post-likes .active-like {
-    color: #28a745;
+    color: #15ca3f;
 }
 
 .post-likes .active-dislike {
-    color: #c22f2f;
+    color: #ff0808;
 }
 
 .post-user-info {
@@ -85,6 +87,11 @@
     font-size: 1.1rem;
     line-height: 1.6;
     color: #333;
+}
+
+.button-edit {
+    margin-top: 20px !important;
+    margin-left: 20px;
 }
 
 .sort-container {
@@ -124,7 +131,7 @@
     margin-bottom: 15px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: start;
     padding-right: 60px;
 }
 
@@ -180,4 +187,13 @@
 
 .status-indicator.inactive {
     background-color: #6c757d;
+}
+
+.delete-comment {
+    margin-top: 0px !important;
+    padding: 0px 7px !important;
+}
+
+.delete-comment-icon {
+    font-size: 15px;
 }
