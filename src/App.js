@@ -8,10 +8,11 @@ import Users from './pages/Users/Users';
 import ConfirmEmail from './pages/ConfirmEmail/ConfirmEmail'
 import CreatePost from './pages/CreatePost/CreatePost'
 import NotFound from './pages/NotFound/NotFound';
-
 import store, { persistor } from "./store/store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import 'highlight.js/styles/github.css';
+
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 

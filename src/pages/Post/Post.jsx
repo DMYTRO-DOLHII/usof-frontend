@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -11,16 +11,25 @@ import $api from '../../api';
 import { decodeToken } from '../../utils/token';
 import './Post.css';
 import { marked } from 'marked';
+import hljs from 'highlight.js';
 
 marked.setOptions({
     gfm: true,
     breaks: true,
-    sanitize: false,
+    smartLists: true,
+    smartypants: true,
+    highlight: (code, lang) => {
+        if (hljs.getLanguage(lang)) {
+            return hljs.highlight(lang, code).value;
+        } else {
+            return hljs.highlightAuto(code).value;
+        }
+    },
 });
 
 const Post = () => {
     const token = localStorage.getItem('token');
-
+    const previewRef = useRef();
     const { postId } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
@@ -37,17 +46,14 @@ const Post = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Decode token if exists and set user info
-        const fetchUser = () => {
-            try {
-                if (token) {
-                    const decodedUser = decodeToken(token);
-                    setUser(decodedUser);
-                }
-            } catch (err) {
-                console.error('Failed to fetch user:', err);
+        try {
+            if (token) {
+                const decodedUser = decodeToken(token);
+                setUser(decodedUser);
             }
-        };
+        } catch (err) {
+            console.error('Failed to fetch user:', err);
+        }
 
         // Fetch post data and determine if user has liked/disliked the post
         const fetchPost = async () => {
@@ -58,7 +64,6 @@ const Post = () => {
                     return;
                 }
                 setPost(response.data);
-                determineUserLikeStatus(response.data.likes);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -66,19 +71,40 @@ const Post = () => {
             }
         };
 
-        fetchUser();
+        const fetchComments = async () => {
+            setCommentsLoading(true);
+            try {
+                const response = await $api.get(`/posts/${postId}/comments`);
+                const sortedComments = sortComments(response.data, sortOrder);
+                setComments(sortedComments);
+            } catch (err) {
+                setCommentsError(err.message);
+            } finally {
+                setCommentsLoading(false);
+            }
+        };
+
         fetchPost();
+        fetchComments();
     }, [postId, navigate]);
 
-    const determineUserLikeStatus = (likes) => {
-        if (!post.user) return;
-        const userLike = likes.find(like => like.userId === post.user.id);
-        if (userLike) {
-            setUserLikeStatus(userLike.type);
-            setIsLiked(userLike.type === 'like');
-            setIsDisliked(userLike.type === 'dislike');
+    useEffect(() => {
+        const determineUserLikeStatus = () => {
+            if (!post) return;
+            const userLike = post.likes.find(like => like.userId === user.id);
+            if (userLike) {
+                setUserLikeStatus(userLike.type);
+            }
         }
-    };
+
+        determineUserLikeStatus();
+    });
+
+    useEffect(() => {
+        if (previewRef.current) {
+            hljs.highlightAll();
+        }
+    }, [post]);
 
     const sortComments = (comments, order) => {
         switch (order) {
@@ -119,13 +145,54 @@ const Post = () => {
 
         try {
             const response = await $api.post(`/posts/${postId}/like`, { type });
-            setUserLikeStatus(type);
-            setIsLiked(type === 'like');
-            setIsDisliked(type === 'dislike');
+            console.log(response.data);
+
+            if (type === userLikeStatus) {
+                setPost((prevPost) => ({
+                    ...prevPost,
+                    likes: prevPost.likes.filter((like) => like.userId !== user.id),
+                }));
+                setUserLikeStatus('');
+            } else {
+                if (type === 'like') {
+                    if (userLikeStatus === 'dislike') {
+                        setPost((prevPost) => ({
+                            ...prevPost,
+                            likes: [
+                                ...prevPost.likes.filter((like) => like.userId !== user.id),
+                                { userId: user.id, type: 'like' },
+                            ],
+                        }));
+                    } else {
+                        setPost((prevPost) => ({
+                            ...prevPost,
+                            likes: [...prevPost.likes, { userId: user.id, type: 'like' }],
+                        }));
+                    }
+                } else if (type === 'dislike') {
+                    if (userLikeStatus === 'like') {
+                        setPost((prevPost) => ({
+                            ...prevPost,
+                            likes: [
+                                ...prevPost.likes.filter((like) => like.userId !== user.id),
+                                { userId: user.id, type: 'dislike' },
+                            ],
+                        }));
+                    } else {
+                        setPost((prevPost) => ({
+                            ...prevPost,
+                            likes: [...prevPost.likes, { userId: user.id, type: 'dislike' }],
+                        }));
+                    }
+                }
+
+                setUserLikeStatus(type); // Update the user's like/dislike status
+            }
         } catch (err) {
             console.error('Failed to like/dislike post:', err);
         }
     };
+
 
     const handleDeletePost = async () => {
         try {
@@ -153,12 +220,12 @@ const Post = () => {
                             Published on: {new Date(post.publishDate).toLocaleDateString()}
                         </p>
                         <p>
-                            Status:
+                            Status :
                             <span className={`status ${post.status === 'active' ? 'status-active-text' : 'status-inactive-text'}`}>
                                 {post.status}
                             </span>
                         </p>
-                        <div className="post-body" dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
+                        <div className="post-body" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
 
                         </div>
 

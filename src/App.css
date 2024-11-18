@@ -60,3 +60,8 @@ input[type="text"] {
     color: white;
     border-color: transparent;
 }
+
+.hljs {
+    background-color: #dedede !important;
+    border-radius: 5px;
+}
