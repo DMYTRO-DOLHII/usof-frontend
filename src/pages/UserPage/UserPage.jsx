@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PostCard from '../Home/components/PostCard/PostCard';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
-import './UserPage.css'
+import { decodeToken } from '../../utils/token'; // Assuming you have this utility
+import './UserPage.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const UserPage = () => {
+    const navigate = useNavigate();
     const { userId } = useParams();
 
     const token = localStorage.getItem('token');
+    const decodedUser = token ? decodeToken(token) : null;
 
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
@@ -26,10 +31,10 @@ const UserPage = () => {
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
-        }
+        };
 
         fetchUserPostData();
-    }, []);
+    }, [userId]);
 
     const isValidUrl = (string) => {
         try {
@@ -38,6 +43,18 @@ const UserPage = () => {
         } catch (_) {
             return false;
         }
+    };
+
+    const handleDeleteUser = async () => {
+        try {
+            const response = await $api.delete(`/users/${userId}`);
+
+            if (response.status === 200) navigate('/');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert('Failed to delete user.');
+        }
+
     };
 
     return (
@@ -58,6 +75,11 @@ const UserPage = () => {
                             <p className="text-muted">Full Name: {user.fullName || 'N/A'}</p>
                             <p className="text-muted">Role: {user.role}</p>
                             <p className="text-muted">Rating: {user.rating || 0}</p>
+                            {decodedUser?.role === 'admin' && (
+                                <button onClick={handleDeleteUser} className="btn btn-danger mt-3">
+                                    <FontAwesomeIcon icon={faTrash}></FontAwesomeIcon>  Delete User
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
