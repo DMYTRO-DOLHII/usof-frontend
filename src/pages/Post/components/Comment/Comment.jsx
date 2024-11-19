@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 import $api from '../../../../api';
 
-const Comment = ({ comment, user }) => {
+const Comment = ({ comment, user, isAdmin }) => {
+    const [comments, setComments] = useState([]);
     const [likeCount, setLikeCount] = useState(comment.likes.filter(like => like.type === 'like').length);
     const [dislikeCount, setDislikeCount] = useState(comment.likes.filter(like => like.type === 'dislike').length);
     const [userLikeType, setUserLikeType] = useState(
         comment.likes.find(like => like.userId === user.id)?.type || null
     );
+
+    useEffect(() => {
+        if (user) {
+            setUserLikeType()
+        }
+    }, []);
 
     const handleLikeDislike = async (type) => {
         if (userLikeType === type) {
@@ -29,32 +36,40 @@ const Comment = ({ comment, user }) => {
         }
     };
 
+    const handleDeleteComment = async (commentId) => {
+
+        try {
+            await $api.delete(`/comments/${commentId}`);
+            setComments((prevComments) => prevComments.filter((c) => c.id !== commentId));
+        } catch (err) {
+            console.error('Failed to delete comment:', err);
+            alert('Failed to delete the comment. Please try again.');
+        }
+    };
+
     return (
-        <div className="comment-card">
+        <div key={comment.id} className="comment-card">
             <div className="comment-content">
                 <div className="comment-title">{comment.content}</div>
                 <div className="comment-meta">
                     Published on: {new Date(comment.publishDate).toLocaleDateString()}
                 </div>
-                {/* <div className="comment-user">
-                    <img src={comment.user.profilePicture} alt={`${comment.user.login}'s profile`} className="user-avatar" />
-                    <span>{comment.user.login}</span>
-                </div> */}
+                {(user && (comment.userId === user.id || isAdmin)) && (
+                    <button className="btn btn-danger delete-comment">
+                        <FontAwesomeIcon
+                            icon={faTrash}
+                            className='delete-comment-icon'
+                            onClick={() => handleDeleteComment(comment.id)}
+                        />
+                    </button>
+                )}
             </div>
             <div className="comment-likes">
-                <span onClick={() => handleLikeDislike('like')}>
-                    <FontAwesomeIcon
-                        icon={faChevronUp}
-                        className={`like-icon ${userLikeType === 'like' ? 'active' : ''}`}
-                    />
-                    {likeCount}
+                <span>
+                    <FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likeCount}
                 </span>
-                <span onClick={() => handleLikeDislike('dislike')}>
-                    <FontAwesomeIcon
-                        icon={faChevronDown}
-                        className={`dislike-icon ${userLikeType === 'dislike' ? 'active' : ''}`}
-                    />
-                    {dislikeCount}
+                <span>
+                    <FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {dislikeCount}
                 </span>
             </div>
             <div className={`status-indicator ${comment.status === 'active' ? 'active' : 'inactive'}`}></div>

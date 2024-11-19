@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import './UserCard.css'
 
 const UserCard = ({ user }) => {
+    const navigate = useNavigate();
+
     const isValidUrl = (string) => {
         try {
             new URL(string);
@@ -11,8 +14,12 @@ const UserCard = ({ user }) => {
         }
     };
 
+    const handleUserCardClick = (userId) => {
+        navigate(`/users/${userId}`);
+    }
+
     return (
-        <div key={user.id} className="user-card">
+        <div key={user.id} className="user-card" onClick={() => handleUserCardClick(user.id)}>
             <img
                 src={isValidUrl(user.profilePicture)
                     ? user.profilePicture

@@ -1,51 +1,24 @@
-/* General Page Layout */
+/* General Layout */
 body {
+    min-height: 100vh;
+    margin: 0 auto;
+}
+
+.section {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    margin: 0;
 }
 
-.container {
-    flex: 1;
-    /* This makes the container take up all available space between the header and footer */
-}
-
-/* User Page Styling */
-.user-page {
-    margin-top: 30px;
-}
-
-.user-card {
+.user-post-container {
     display: flex;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
+    flex-direction: column;
 }
 
-.user-avatar {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border: 2px solid #ddd;
+.user-card-container {
+    margin: 50px 0px;
 }
 
-.user-login {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-}
-
-.row {
-    margin-top: 20px;
-}
-
-/* Footer Styling */
-footer {
-    text-align: center;
-    padding: 10px 20px;
-    background-color: #333;
-    color: white;
-    position: relative;
-    /* Optional if you don't want the footer fixed */
+.user-info-container {
+    flex-direction: column;
 }

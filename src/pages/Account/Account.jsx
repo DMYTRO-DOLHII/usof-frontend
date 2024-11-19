@@ -104,9 +104,9 @@ const Account = () => {
                         <input
                             type="file"
                             accept="image/*"
-                            ref={fileInputRef} // Attach ref to the file input
-                            style={{ display: 'none' }} // Hide the file input
-                            onChange={handleImageChange} // Handle file change
+                            ref={fileInputRef}
+                            style={{ display: 'none' }} 
+                            onChange={handleImageChange}
                         />
                     </div>
                     <div className="profile-details">

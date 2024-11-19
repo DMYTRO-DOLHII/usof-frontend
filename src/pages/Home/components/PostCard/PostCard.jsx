@@ -7,6 +7,8 @@ import './PostCard.css'
 const PostCard = ({ post }) => {
     const navigate = useNavigate();
 
+    console.log(post);
+
     const handleCardClick = (postId) => {
         navigate(`/posts/${postId}`);
     };
@@ -58,9 +60,9 @@ const PostCard = ({ post }) => {
                             className="rounded-circle me-2"
                             style={{ width: '20px', height: '20px' }}
                         />
-                        <Link to={`/users/${post.user.id}`} className="text-decoration-none">
+                        <div className="text-decoration-none">
                             {post.user.login}
-                        </Link>
+                        </div>
                     </div>
                 </div>
                 {/* Comment Icon and Count */}

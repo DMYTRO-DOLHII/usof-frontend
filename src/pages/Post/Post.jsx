@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import Comment from './components/Comment/Comment';
 import $api from '../../api';
 import { decodeToken } from '../../utils/token';
 import './Post.css';

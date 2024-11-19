@@ -5,22 +5,21 @@ import PostCard from '../Home/components/PostCard/PostCard';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
+import './UserPage.css'
 
 const UserPage = () => {
     const { userId } = useParams();
+
+    const token = localStorage.getItem('token');
 
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
-        console.log("PENISPENISPENIS")
         const fetchUserPostData = async () => {
             try {
                 const userResponse = await $api.get(`/users/${userId}`);
                 const postsResponse = await $api.get(`/posts/${userId}/posts`);
-
-                console.log(userResponse.data);
-                console.log(postsResponse.data);
 
                 setUser(userResponse.data);
                 setPosts(postsResponse.data);
@@ -42,35 +41,34 @@ const UserPage = () => {
     };
 
     return (
-        <div className="section ">
+        <div className="section">
             <Header />
-            {(user && posts) && (
-                <>
-                    <div className="user-card shadow p-3 mb-5 bg-white rounded">
-                        <div className="d-flex align-items-center">
-                            <img
-                                src={isValidUrl(user.profilePicture)
-                                    ? user.profilePicture
-                                    : `${process.env.REACT_APP_BACK_URL_IMG}/${user.profilePicture}`}
-                                alt={`${user.login}'s Profile`}
-                                className="rounded-circle me-3 user-avatar"
-                            />
-                            <div>
-                                <h4 className="user-login">{user.login}</h4>
-                                <p className="text-muted">Full Name: {user.fullName || 'N/A'}</p>
-                                <p className="text-muted">Role: {user.role}</p>
-                                <p className="text-muted">Rating: {user.rating || 0}</p>
-                            </div>
+            <div className="container">
+                {user && (
+                    <div className="user-card user-card-container">
+                        <img
+                            src={isValidUrl(user.profilePicture)
+                                ? user.profilePicture
+                                : `${process.env.REACT_APP_BACK_URL_IMG}/${user.profilePicture}`}
+                            alt={`${user.login}'s Profile`}
+                            className="user-avatar"
+                        />
+                        <div className="user-info user-info-container">
+                            <h4 className="user-login">{user.login}</h4>
+                            <p className="text-muted">Full Name: {user.fullName || 'N/A'}</p>
+                            <p className="text-muted">Role: {user.role}</p>
+                            <p className="text-muted">Rating: {user.rating || 0}</p>
                         </div>
                     </div>
+                )}
+                {posts && (
                     <div className="row">
-                        {posts && posts.length > 0 ? (
-                            posts.map((post) => <PostCard key={post.id} post={post} />)
-                        ) : (
-                            <p className="text-muted">This user has not posted anything yet.</p>
-                        )}
+                        {posts.map((post) => (
+                            <PostCard key={post.id} post={post} />
+                        ))}
                     </div>
-                </>)}
+                )}
+            </div>
             <Footer />
         </div>
     );
