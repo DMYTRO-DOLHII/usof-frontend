@@ -70,21 +70,7 @@ const Post = () => {
             }
         };
 
-        const fetchComments = async () => {
-            setCommentsLoading(true);
-            try {
-                const response = await $api.get(`/posts/${postId}/comments`);
-                const sortedComments = sortComments(response.data, sortOrder);
-                setComments(sortedComments);
-            } catch (err) {
-                setCommentsError(err.message);
-            } finally {
-                setCommentsLoading(false);
-            }
-        };
-
         fetchPost();
-        fetchComments();
     }, [postId, navigate]);
 
     useEffect(() => {
@@ -104,6 +90,19 @@ const Post = () => {
         }
     }, [post]);
 
+    const fetchComments = async () => {
+        setCommentsLoading(true);
+        try {
+            const response = await $api.get(`/posts/${postId}/comments`);
+            const sortedComments = sortComments(response.data, sortOrder);
+            setComments(sortedComments);
+        } catch (err) {
+            setCommentsError(err.message);
+        } finally {
+            setCommentsLoading(false);
+        }
+    };
+
     const sortComments = (comments, order) => {
         switch (order) {
             case 'highestScore':
@@ -115,6 +114,10 @@ const Post = () => {
                 return [...comments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
     };
+
+    useEffect(() => {
+        fetchComments();
+    }, [sortOrder]);
 
     const handleSortChange = (e) => {
         setSortOrder(e.target.value);

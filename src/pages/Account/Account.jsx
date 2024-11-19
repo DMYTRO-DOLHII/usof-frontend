@@ -9,6 +9,9 @@ import $api from '../../api';
 const Account = () => {
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({ fullName: '', login: '' });
+
     const token = localStorage.getItem('token');
     const navigate = useNavigate();
     const fileInputRef = useRef(null); // Reference for the hidden file input
@@ -17,12 +20,13 @@ const Account = () => {
         if (token) fetchMe(decodeToken(token).id);
     }, []);
 
-    const fetchMe = async (token) => {
+    const fetchMe = async (userId) => {
         try {
-            const response = await $api.get(`/users/${token}`);
-            if (response.status != 200) throw new Error('Error fetching user info');
+            const response = await $api.get(`/users/${userId}`);
+            if (response.status !== 200) throw new Error('Error fetching user info');
             const data = response.data;
             setUser(data);
+            setFormData({ fullName: data.fullName, login: data.login });
             document.cookie = `fullName=${encodeURIComponent(data.fullName)}; path=/; max-age=86400`;
         } catch (err) {
             setError(err.message);
@@ -53,10 +57,10 @@ const Account = () => {
         try {
             const response = await $api.patch('/users/avatar', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                    'Content-Type': 'multipart/form-data',
+                },
             });
-            if (response.status == 200) {
+            if (response.status === 200) {
                 const data = response.data;
                 setUser(data.user);
             } else {
@@ -80,6 +84,32 @@ const Account = () => {
         fileInputRef.current.click(); // Trigger file input dialog
     };
 
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleSaveChanges = async () => {
+        try {
+            const response = await $api.patch(`/users/${user.id}`, formData);
+            if (response.status === 200) {
+                setUser({ ...user, ...formData });
+                setIsEditing(false);
+            } else {
+                setError('Failed to update user information');
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
     if (error) {
         return <p>Error: {error}</p>;
     }
@@ -90,7 +120,7 @@ const Account = () => {
 
     return (
         <>
-            <Header hideAuthorizationButtons={true}/>
+            <Header hideAuthorizationButtons={true} />
             <div className="account-page container">
                 <h1>Account Information</h1>
                 <div className="profile-container">
@@ -105,17 +135,65 @@ const Account = () => {
                             type="file"
                             accept="image/*"
                             ref={fileInputRef}
-                            style={{ display: 'none' }} 
+                            style={{ display: 'none' }}
                             onChange={handleImageChange}
                         />
                     </div>
                     <div className="profile-details">
-                        <p><strong>Full Name:</strong> {user.fullName}</p>
-                        <p><strong>Login:</strong> {user.login}</p>
-                        <p><strong>Email:</strong> {user.email}</p>
-                        <p><strong>Rating:</strong> {user.rating}</p>
+                        {isEditing ? (
+                            <div className='edit-information'>
+                                <p>
+                                    <strong>Full Name</strong>
+                                </p>
+                                <input
+                                    className='fullName-input'
+                                    type="text"
+                                    name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleInputChange}
+                                />
+                                <p>
+                                    <strong>Login</strong>
+                                </p>
+                                <input
+                                    className='login-input'
+                                    type="text"
+                                    name="login"
+                                    value={formData.login}
+                                    onChange={handleInputChange}
+                                />
+                                <div className='buttons-edit'>
+                                    <button onClick={handleSaveChanges} className="btn btn-success save-changes-btn">
+                                        Save Changes
+                                    </button>
+                                    <button onClick={handleEditToggle} className="btn btn-secondary">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <p>
+                                    <strong>Full Name:</strong> {user.fullName}
+                                </p>
+                                <p>
+                                    <strong>Login:</strong> {user.login}
+                                </p>
+                                <p>
+                                    <strong>Email:</strong> {user.email}
+                                </p>
+                                <p>
+                                    <strong>Rating:</strong> {user.rating}
+                                </p>
+                                <button onClick={handleEditToggle} className="btn btn-primary">
+                                    Edit Information
+                                </button>
+                            </>
+                        )}
                     </div>
-                    <button onClick={handleLogout} className="btn btn-danger">Log Out</button>
+                    <button onClick={handleLogout} className="btn btn-danger">
+                        Log Out
+                    </button>
                 </div>
             </div>
             <Footer />

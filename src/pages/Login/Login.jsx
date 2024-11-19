@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/Header/Header";
+import $api from "../../api";
+import axios from "axios";
 
 const Login = () => {
     const [loginData, setLoginData] = useState({
@@ -17,44 +19,23 @@ const Login = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(""); // Clear any previous error message
+        setError("");
 
-        const url = `${process.env.REACT_APP_BACK_URL_API}/auth/login`;
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BACK_URL_API}/auth/login`, { login: loginData.login, password: loginData.password });
 
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                login: loginData.login,
-                password: loginData.password,
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.message); // Use error message from backend
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Assuming the token is in `data.token`
-                const token = data.token;
-
-                // Save the token in localStorage
+            if (response.status === 200) {
+                const token = response.data.token;
                 localStorage.setItem('token', token);
-
-                // Redirect to the main page
                 navigate('/');
-            })
-            .catch(error => {
-                setError(error.message); // Set the error message to display in UI
-            });
+            } else {
+                throw new Error(response.data.message);
+            }
+        } catch (error) {
+            setError(error.response.data.message);
+        }
     };
 
 
