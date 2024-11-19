@@ -95,6 +95,8 @@ const Post = () => {
         try {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
+
+            console.log(sortedComments);
             setComments(sortedComments);
         } catch (err) {
             setCommentsError(err.message);

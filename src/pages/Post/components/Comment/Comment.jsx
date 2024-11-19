@@ -47,6 +47,17 @@ const Comment = ({ comment, user, isAdmin }) => {
         }
     };
 
+    const countLikesDislikes = (likes) => {
+        let like = 0, dislike = 0;
+        likes.forEach(like => {
+            if (like.type === 'like') like++;
+            if (like.type === 'dislike') dislike++;
+        });
+        return { like, dislike };
+    };
+
+    const likesCounts = countLikesDislikes(comment.likes);
+
     return (
         <div key={comment.id} className="comment-card">
             <div className="comment-content">
@@ -66,10 +77,10 @@ const Comment = ({ comment, user, isAdmin }) => {
             </div>
             <div className="comment-likes">
                 <span>
-                    <FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likeCount}
+                    <FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likesCounts.like}
                 </span>
                 <span>
-                    <FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {dislikeCount}
+                    <FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {likesCounts.dislike}
                 </span>
             </div>
             <div className={`status-indicator ${comment.status === 'active' ? 'active' : 'inactive'}`}></div>
