@@ -96,7 +96,6 @@ const Post = () => {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
 
-
             setComments(sortedComments);
         } catch (err) {
             setCommentsError(err.message);
@@ -108,12 +107,15 @@ const Post = () => {
     const sortComments = (comments, order) => {
         switch (order) {
             case 'highestScore':
-                return [...comments].sort((a, b) => b.likes.filter(l => l.type === 'like').length - a.likes.filter(l => l.type === 'like').length);
+                return [...comments].sort((a, b) =>
+                    b.likes.filter(like => like.type === 'like').length -
+                    a.likes.filter(like => like.type === 'like').length
+                );
             case 'active':
                 return [...comments].filter(comment => comment.status === 'active');
             case 'dateCreated':
             default:
-                return [...comments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                return [...comments].sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
         }
     };
 
@@ -142,6 +144,49 @@ const Post = () => {
             return false;
         }
     };
+
+    const handleLeaveComment = () => {
+        if (!user) {
+            displayNotLoggedInPopUp('You need to be logged in to leave a comment.');
+        } else {
+            setShowCommentForm(true);
+        }
+    };
+
+    const [showCommentForm, setShowCommentForm] = useState(false);
+    const [commentContent, setCommentContent] = useState('');
+
+    const handleCommentContentChange = (e) => {
+        setCommentContent(e.target.value);
+    };
+
+    const handleSubmitComment = async () => {
+        if (!commentContent) {
+            Swal.fire('Error', 'Please enter a comment', 'error');
+            return;
+        }
+
+        try {
+            const response = await $api.post(`/posts/${postId}/comments`, {
+                content: commentContent,
+            });
+
+            if (response.status !== 201) {
+                throw new Error('Failed to submit comment.');
+            }
+
+            setComments((prevComments) => [
+                response.data.comment,
+                ...prevComments,
+            ]);
+
+            setShowCommentForm(false);
+            setCommentContent('');
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+        }
+    };
+
 
     const displayNotLoggedInPopUp = (text) => {
         Swal.fire({
@@ -284,7 +329,7 @@ const Post = () => {
     const handleDeleteReply = async (commentId, replyId) => {
         try {
             const response = await $api.delete(`/comments/${replyId}/reply`);
-    
+
             if (response.status !== 200) {
                 throw new Error('Failed to delete reply.');
             }
@@ -300,12 +345,12 @@ const Post = () => {
                     return comment;
                 });
             });
-    
+
         } catch (error) {
             Swal.fire('Error', error.message, 'error');
         }
     };
-    
+
 
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
@@ -375,6 +420,26 @@ const Post = () => {
                     </div>
                 )}
 
+                <button className="btn leave-comment-button" onClick={handleLeaveComment}>
+                    Leave a Comment
+                </button>
+
+                {showCommentForm && (
+                    <div className="comment-form">
+                        <textarea
+                            placeholder="Write your comment..."
+                            value={commentContent}
+                            onChange={handleCommentContentChange}
+                        />
+                        <button className="submit-comment-button" onClick={handleSubmitComment}>
+                            Submit Comment
+                        </button>
+                        <button className="cancel-comment-button" onClick={() => setShowCommentForm(false)}>
+                            Cancel
+                        </button>
+                    </div>
+                )}
+
                 <div className="comments-section">
                     <h3>Comments</h3>
                     <div className="sort-container">
@@ -395,12 +460,11 @@ const Post = () => {
                             const { likeCount, dislikeCount } = countLikesDislikes(comment.likes);
                             return (
                                 <div key={comment.id} className="comment-card">
-                                    {/* Comment content section */}
                                     <div className='comment-card-content'>
                                         <div className="comment-content">
                                             <div className="comment-text" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(comment.content) }}></div>
                                             <div className="comment-meta">
-                                                Published on: {new Date(comment.publishDate).toLocaleDateString()}
+                                                {new Date(comment.publishDate).toLocaleString()}
                                             </div>
                                             <div className="comment-user-info">
                                                 <Link to={`/users/${comment.user.id}`} className="user-link">
@@ -426,11 +490,10 @@ const Post = () => {
                                         </div>
                                     </div>
                                     <hr />
-                                    {/* Replies Section */}
                                     <div className="replies-section">
                                         {comment.replies && comment.replies.length > 0 && (
                                             comment.replies
-                                                .sort((a, b) => new Date(a.publishDate) - new Date(b.publishDate)) // Sorting by publishDate
+                                                .sort((a, b) => new Date(a.publishDate) - new Date(b.publishDate))
                                                 .map((reply) => (
                                                     <div key={reply.id} className="reply-card">
                                                         <div className='reply-card-content'>
@@ -439,7 +502,7 @@ const Post = () => {
                                                                     {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login}</Link>
                                                                 </div>
                                                                 <div className="reply-meta">
-                                                                    {new Date(reply.publishDate).toLocaleString()} {/* Precise date with time */}
+                                                                    {new Date(reply.publishDate).toLocaleString()}
                                                                 </div>
                                                             </div>
                                                             {(user && (reply.userId === user.id || isAdmin)) && (
@@ -461,7 +524,7 @@ const Post = () => {
                                         </button>
                                     </div>
                                     {(user && (comment.userId === user.id || isAdmin)) && (
-                                        <button className="btn btn-danger delete-comment">
+                                        <button className="btn delete-comment">
                                             <FontAwesomeIcon
                                                 icon={faTrash}
                                                 className='delete-comment-icon'
