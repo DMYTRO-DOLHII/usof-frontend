@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft, faMinus } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
-import Comment from './components/Comment/Comment';
 import $api from '../../api';
 import { decodeToken } from '../../utils/token';
 import './Post.css';
@@ -96,6 +95,8 @@ const Post = () => {
         try {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
+
+
             setComments(sortedComments);
         } catch (err) {
             setCommentsError(err.message);
@@ -142,8 +143,28 @@ const Post = () => {
         }
     };
 
+    const displayNotLoggedInPopUp = (text) => {
+        Swal.fire({
+            title: 'Not Logged In',
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Log In',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                confirmButton: 'custom-confirm-button',
+                cancelButton: 'custom-cancel-button',
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate('/login');
+            }
+        });
+    };
+
+
     const handleLikeDislike = async (type) => {
-        if (!user) return;
+        if (!user) displayNotLoggedInPopUp("You need to log in to like/dislike.")
 
         try {
             const response = await $api.post(`/posts/${postId}/like`, { type });
@@ -194,7 +215,6 @@ const Post = () => {
         }
     };
 
-
     const handleDeletePost = async () => {
         try {
             await $api.delete(`/posts/${postId}`);
@@ -215,26 +235,15 @@ const Post = () => {
         }
     };
 
-    function handleReply(commentId) {
+    const handleReply = (commentId) => {
         if (!token) {
-            Swal.fire({
-                title: 'Not Logged In',
-                text: 'You need to log in to reply to a comment.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Log In',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    navigate('/login');
-                }
-            });
+            displayNotLoggedInPopUp('You need to log in to reply to a comment.');
         } else {
             showReplyInput(commentId);
         }
     }
 
-    function showReplyInput(commentId) {
+    const showReplyInput = (commentId) => {
         Swal.fire({
             title: 'Reply to Comment',
             input: 'textarea',
@@ -250,7 +259,7 @@ const Post = () => {
         });
     }
 
-    async function submitReply(commentId, replyContent) {
+    const submitReply = async (commentId, replyContent) => {
         try {
             const response = await $api.post(`/comments/${commentId}/reply`, { content: replyContent });
 
@@ -271,6 +280,32 @@ const Post = () => {
             Swal.fire('Error', error.message, 'error');
         }
     }
+
+    const handleDeleteReply = async (commentId, replyId) => {
+        try {
+            const response = await $api.delete(`/comments/${replyId}/reply`);
+    
+            if (response.status !== 200) {
+                throw new Error('Failed to delete reply.');
+            }
+
+            setComments(prevComments => {
+                return prevComments.map(comment => {
+                    if (comment.id === commentId) {
+                        return {
+                            ...comment,
+                            replies: comment.replies.filter(reply => reply.id !== replyId),
+                        };
+                    }
+                    return comment;
+                });
+            });
+    
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+        }
+    };
+    
 
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
@@ -394,25 +429,37 @@ const Post = () => {
                                     {/* Replies Section */}
                                     <div className="replies-section">
                                         {comment.replies && comment.replies.length > 0 && (
-                                            comment.replies.map((reply) => (
-                                                <div key={reply.id} className="reply-card">
-                                                    <div className="reply-content">
-                                                        <div>
-                                                            {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login}</Link>
+                                            comment.replies
+                                                .sort((a, b) => new Date(a.publishDate) - new Date(b.publishDate)) // Sorting by publishDate
+                                                .map((reply) => (
+                                                    <div key={reply.id} className="reply-card">
+                                                        <div className='reply-card-content'>
+                                                            <div className="reply-content">
+                                                                <div>
+                                                                    {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login}</Link>
+                                                                </div>
+                                                                <div className="reply-meta">
+                                                                    {new Date(reply.publishDate).toLocaleString()} {/* Precise date with time */}
+                                                                </div>
+                                                            </div>
+                                                            {(user && (reply.userId === user.id || isAdmin)) && (
+                                                                <button className="btn delete-reply">
+                                                                    <FontAwesomeIcon
+                                                                        icon={faDeleteLeft}
+                                                                        className='delete-reply-icon'
+                                                                        onClick={() => handleDeleteReply(comment.id, reply.id)}
+                                                                    />
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                        <div className="reply-meta">
-                                                            {new Date(reply.publishDate).toLocaleDateString()}
-                                                        </div>
+                                                        <hr />
                                                     </div>
-                                                    <hr />
-                                                </div>
-                                            ))
+                                                ))
                                         )}
                                         <button className="reply-button" onClick={() => handleReply(comment.id)}>
                                             Reply
                                         </button>
                                     </div>
-
                                     {(user && (comment.userId === user.id || isAdmin)) && (
                                         <button className="btn btn-danger delete-comment">
                                             <FontAwesomeIcon
