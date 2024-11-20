@@ -10,6 +10,7 @@ import { decodeToken } from '../../utils/token';
 import './Post.css';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import Swal from 'sweetalert2';
 
 marked.setOptions({
     gfm: true,
@@ -95,8 +96,6 @@ const Post = () => {
         try {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
-
-            console.log(sortedComments);
             setComments(sortedComments);
         } catch (err) {
             setCommentsError(err.message);
@@ -188,7 +187,7 @@ const Post = () => {
                     }
                 }
 
-                setUserLikeStatus(type); // Update the user's like/dislike status
+                setUserLikeStatus(type);
             }
         } catch (err) {
             console.error('Failed to like/dislike post:', err);
@@ -215,6 +214,63 @@ const Post = () => {
             alert('Failed to delete the comment. Please try again.');
         }
     };
+
+    function handleReply(commentId) {
+        if (!token) {
+            Swal.fire({
+                title: 'Not Logged In',
+                text: 'You need to log in to reply to a comment.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Log In',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/login');
+                }
+            });
+        } else {
+            showReplyInput(commentId);
+        }
+    }
+
+    function showReplyInput(commentId) {
+        Swal.fire({
+            title: 'Reply to Comment',
+            input: 'textarea',
+            inputPlaceholder: 'Type your reply here...',
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const replyContent = result.value;
+                submitReply(commentId, replyContent);
+            }
+        });
+    }
+
+    async function submitReply(commentId, replyContent) {
+        try {
+            const response = await $api.post(`/comments/${commentId}/reply`, { content: replyContent });
+
+            if (response.status !== 200) {
+                throw new Error('Failed to submit reply.');
+            }
+
+            console.log(response.data);
+
+            setComments((prevComments) =>
+                prevComments.map((comment) =>
+                    comment.id === commentId
+                        ? { ...comment, replies: [...comment.replies, response.data] } // Add the new reply
+                        : comment
+                )
+            );
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+        }
+    }
 
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
@@ -307,7 +363,7 @@ const Post = () => {
                                     {/* Comment content section */}
                                     <div className='comment-card-content'>
                                         <div className="comment-content">
-                                            <div className="comment-title">{comment.content}</div>
+                                            <div className="comment-text" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(comment.content) }}></div>
                                             <div className="comment-meta">
                                                 Published on: {new Date(comment.publishDate).toLocaleDateString()}
                                             </div>
@@ -342,7 +398,7 @@ const Post = () => {
                                                 <div key={reply.id} className="reply-card">
                                                     <div className="reply-content">
                                                         <div>
-                                                            {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login} </Link>
+                                                            {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login}</Link>
                                                         </div>
                                                         <div className="reply-meta">
                                                             {new Date(reply.publishDate).toLocaleDateString()}
@@ -352,10 +408,11 @@ const Post = () => {
                                                 </div>
                                             ))
                                         )}
-                                        <button className="reply-button">
+                                        <button className="reply-button" onClick={() => handleReply(comment.id)}>
                                             Reply
                                         </button>
                                     </div>
+
                                     {(user && (comment.userId === user.id || isAdmin)) && (
                                         <button className="btn btn-danger delete-comment">
                                             <FontAwesomeIcon

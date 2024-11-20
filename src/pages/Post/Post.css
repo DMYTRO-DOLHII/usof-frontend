@@ -83,6 +83,10 @@
     color: #6c757d;
 }
 
+.post-title {
+    padding-bottom: 10px;
+}
+
 .post-body {
     font-size: 1.1rem;
     line-height: 1.6;
@@ -161,8 +165,8 @@
     max-width: 80%;
 }
 
-.comment-title {
-    font-size: 1.2rem;
+.comment-text {
+    font-size: 17px;
     color: #333;
     margin-bottom: 5px;
 }

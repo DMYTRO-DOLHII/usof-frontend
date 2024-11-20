@@ -73,7 +73,6 @@ const UserPage = () => {
                         <div className="user-info user-info-container">
                             <h4 className="user-login">{user.login}</h4>
                             <p className="text-muted">Full Name: {user.fullName || 'N/A'}</p>
-                            <p className="text-muted">Role: {user.role}</p>
                             <p className="text-muted">Rating: {user.rating || 0}</p>
                             {decodedUser?.role === 'admin' && (
                                 <button onClick={handleDeleteUser} className="btn btn-danger mt-3">
