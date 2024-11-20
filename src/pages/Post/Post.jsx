@@ -261,23 +261,25 @@ const Post = () => {
                         </div>
 
                         <div className="post-user-info">
-                            <img
-                                src={isValidUrl(post.user.profilePicture)
-                                    ? post.user.profilePicture
-                                    : `${process.env.REACT_APP_BACK_URL_IMG}/${post.user.profilePicture}`}
-                                className="user-avatar" />
-                            <Link to={`/users/${post.user.id}`}>{post.user.login}</Link>
+                            <Link to={`/users/${post.user.id}`}>
+                                <img
+                                    src={isValidUrl(post.user.profilePicture)
+                                        ? post.user.profilePicture
+                                        : `${process.env.REACT_APP_BACK_URL_IMG}/${post.user.profilePicture}`}
+                                    className="post-user-avatar" />
+                                {post.user.login}
+                            </Link>
                         </div>
 
                         {(isPostCreator || isAdmin) && (
-                            <>
+                            <div className='action-buttons'>
                                 <button onClick={handleDeletePost} className="btn btn-danger">
                                     <FontAwesomeIcon icon={faTrash} /> Delete Post
                                 </button>
                                 <button className="btn btn-primary button-edit">
                                     <FontAwesomeIcon icon={faEdit} /> Edit
                                 </button>
-                            </>
+                            </div>
                         )}
                     </div>
                 )}
@@ -302,30 +304,67 @@ const Post = () => {
                             const { likeCount, dislikeCount } = countLikesDislikes(comment.likes);
                             return (
                                 <div key={comment.id} className="comment-card">
-                                    <div className="comment-content">
-                                        <div className="comment-title">{comment.content}</div>
-                                        <div className="comment-meta">
-                                            Published on: {new Date(comment.publishDate).toLocaleDateString()}
+                                    {/* Comment content section */}
+                                    <div className='comment-card-content'>
+                                        <div className="comment-content">
+                                            <div className="comment-title">{comment.content}</div>
+                                            <div className="comment-meta">
+                                                Published on: {new Date(comment.publishDate).toLocaleDateString()}
+                                            </div>
+                                            <div className="comment-user-info">
+                                                <Link to={`/users/${comment.user.id}`} className="user-link">
+                                                    <img
+                                                        src={isValidUrl(comment.user.profilePicture)
+                                                            ? comment.user.profilePicture
+                                                            : `${process.env.REACT_APP_BACK_URL_IMG}/${comment.user.profilePicture}`}
+                                                        alt={`${comment.user.login}'s profile`} className="user-pic" />
+                                                    {comment.user.login}
+                                                </Link>
+                                            </div>
                                         </div>
-                                        {(user && (comment.userId === user.id || isAdmin)) && (
-                                            <button className="btn btn-danger delete-comment">
-                                                <FontAwesomeIcon
-                                                    icon={faTrash}
-                                                    className='delete-comment-icon'
-                                                    onClick={() => handleDeleteComment(comment.id)}
-                                                />
-                                            </button>
+                                        <div className='comment-info-section'>
+                                            <div className="comment-likes">
+                                                <span>
+                                                    <FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likeCount}
+                                                </span>
+                                                <span>
+                                                    <FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {dislikeCount}
+                                                </span>
+                                            </div>
+                                            <div className={`status-indicator ${comment.status === 'active' ? 'active' : 'inactive'}`}></div>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    {/* Replies Section */}
+                                    <div className="replies-section">
+                                        {comment.replies && comment.replies.length > 0 && (
+                                            comment.replies.map((reply) => (
+                                                <div key={reply.id} className="reply-card">
+                                                    <div className="reply-content">
+                                                        <div>
+                                                            {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login} </Link>
+                                                        </div>
+                                                        <div className="reply-meta">
+                                                            {new Date(reply.publishDate).toLocaleDateString()}
+                                                        </div>
+                                                    </div>
+                                                    <hr />
+                                                </div>
+                                            ))
                                         )}
+                                        <button className="reply-button">
+                                            Reply
+                                        </button>
                                     </div>
-                                    <div className="comment-likes">
-                                        <span>
-                                            <FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likeCount}
-                                        </span>
-                                        <span>
-                                            <FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {dislikeCount}
-                                        </span>
-                                    </div>
-                                    <div className={`status-indicator ${comment.status === 'active' ? 'active' : 'inactive'}`}></div>
+                                    {(user && (comment.userId === user.id || isAdmin)) && (
+                                        <button className="btn btn-danger delete-comment">
+                                            <FontAwesomeIcon
+                                                icon={faTrash}
+                                                className='delete-comment-icon'
+                                                onClick={() => handleDeleteComment(comment.id)}
+                                            />
+                                        </button>
+                                    )}
                                 </div>
                             );
                         })
