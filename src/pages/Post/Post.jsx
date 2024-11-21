@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft, faMinus, faBookBookmark, faBookmark } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark as faBookmarkRegular } from '@fortawesome/free-regular-svg-icons';
+import { faBookmark as faBookmarkSolid } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
@@ -39,6 +41,7 @@ const Post = () => {
     const [userLikeStatus, setUserLikeStatus] = useState(null);
     const [user, setUser] = useState(null);
     const [isFavourite, setIsFavourite] = useState(false);
+    const [favouriteCount, setFavouriteCount] = useState(0);
 
     const [isPostCreator, setIsPostCreator] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -64,7 +67,7 @@ const Post = () => {
                     return;
                 }
 
-                console.log(response.data);
+                setFavouriteCount(response.data.favourites.length);
                 setPost(response.data);
             } catch (err) {
                 setError(err.message);
@@ -88,7 +91,7 @@ const Post = () => {
 
         setIsPostCreator(user && user.id === post.userId);
         setIsAdmin(user && user.role === 'admin');
-    });
+    }, [post, user]);
 
     useEffect(() => {
         if (previewRef.current) {
@@ -355,12 +358,35 @@ const Post = () => {
         }
     };
 
+    const handleFavouriteClick = async () => {
+        try {
+            if (isFavourite) {
+                const response = await $api.delete(`/favourite/${postId}`);
+
+                if (response.status !== 204) {
+                    throw new Error(response.data);
+                }
+                setFavouriteCount(favouriteCount - 1);
+                setIsFavourite(false);
+            } else {
+                const response = await $api.post(`/favourite/${postId}`);
+
+                if (response.status !== 201) {
+                    throw new Error(response.data);
+                }
+                setFavouriteCount(favouriteCount + 1);
+                setIsFavourite(true);
+            }
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error')
+        }
+    }
+
 
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
 
     const postLikes = post ? countLikesDislikes(post.likes) : { likeCount: 0, dislikeCount: 0 };
-    const favourites = post ? post.favourites.length : 0;
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -408,10 +434,12 @@ const Post = () => {
                             </span>
                             <span>
                                 <FontAwesomeIcon
-                                    icon={faBookmark}
-                                    className={`bookmark-icon ${isFavourite === true ? 'favourite' : ''}`}
-                                /> {favourites}
+                                    icon={isFavourite ? faBookmarkSolid : faBookmarkRegular}
+                                    className={`bookmark-icon ${isFavourite ? 'favourite' : ''}`}
+                                    onClick={() => handleFavouriteClick()}
+                                /> {favouriteCount}
                             </span>
+
                         </div>
                         <div className="post-body" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
 
