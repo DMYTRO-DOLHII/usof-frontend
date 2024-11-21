@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft, faMinus, faBookBookmark, faBookmark } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import $api from '../../api';
@@ -38,6 +38,7 @@ const Post = () => {
     const [sortOrder, setSortOrder] = useState('dateCreated');
     const [userLikeStatus, setUserLikeStatus] = useState(null);
     const [user, setUser] = useState(null);
+    const [isFavourite, setIsFavourite] = useState(false);
 
     const [isPostCreator, setIsPostCreator] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -62,6 +63,8 @@ const Post = () => {
                     navigate('/404');
                     return;
                 }
+
+                console.log(response.data);
                 setPost(response.data);
             } catch (err) {
                 setError(err.message);
@@ -79,6 +82,9 @@ const Post = () => {
         if (userLike) {
             setUserLikeStatus(userLike.type);
         }
+
+        const userFavourite = post.favourites.find(favourite => favourite.userId === user.id);
+        if (userFavourite) setIsFavourite(true);
 
         setIsPostCreator(user && user.id === post.userId);
         setIsAdmin(user && user.role === 'admin');
@@ -312,8 +318,6 @@ const Post = () => {
                 throw new Error('Failed to submit reply.');
             }
 
-            console.log(response.data);
-
             setComments((prevComments) =>
                 prevComments.map((comment) =>
                     comment.id === commentId
@@ -356,6 +360,7 @@ const Post = () => {
     if (error) return <p className="text-danger">{error}</p>;
 
     const postLikes = post ? countLikesDislikes(post.likes) : { likeCount: 0, dislikeCount: 0 };
+    const favourites = post ? post.favourites.length : 0;
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -364,6 +369,17 @@ const Post = () => {
                 {post && (
                     <div className="post-card-single">
                         <h1 className="post-title gradient">{post.title}</h1>
+                        {post.categories && post.categories.length > 0 ? (
+                            <ul className="category-list list-unstyled">
+                                {post.categories.map((category) => (
+                                    <li key={category.id} className="category-item">
+                                        {category.title}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <span>No categories available</span>
+                        )}
                         <p className="post-meta">
                             Published on: {new Date(post.publishDate).toLocaleDateString()}
                         </p>
@@ -373,10 +389,6 @@ const Post = () => {
                                 {post.status}
                             </span>
                         </p>
-                        <div className="post-body" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
-
-                        </div>
-
                         <div className="post-likes">
                             <span
                                 onClick={() => handleLikeDislike('like')}
@@ -394,6 +406,15 @@ const Post = () => {
                                     className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''}`}
                                 /> {postLikes.dislikeCount}
                             </span>
+                            <span>
+                                <FontAwesomeIcon
+                                    icon={faBookmark}
+                                    className={`bookmark-icon ${isFavourite === true ? 'favourite' : ''}`}
+                                /> {favourites}
+                            </span>
+                        </div>
+                        <div className="post-body" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
+
                         </div>
 
                         <div className="post-user-info">

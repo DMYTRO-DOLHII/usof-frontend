@@ -83,6 +83,20 @@
     color: #6c757d;
 }
 
+.bookmark-icon {
+    transition: .3s;
+}
+
+.bookmark-icon:hover {
+    cursor: pointer;
+    scale: 1.2;
+    color: #df25dc;
+}
+
+.favourite {
+    color: #df25dc;
+}
+
 .post-title {
     padding-bottom: 10px;
 }

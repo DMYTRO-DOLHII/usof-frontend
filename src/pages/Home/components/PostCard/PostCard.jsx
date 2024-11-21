@@ -7,8 +7,6 @@ import './PostCard.css'
 const PostCard = ({ post }) => {
     const navigate = useNavigate();
 
-    console.log(post);
-
     const handleCardClick = (postId) => {
         navigate(`/posts/${postId}`);
     };
