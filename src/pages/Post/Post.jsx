@@ -360,6 +360,11 @@ const Post = () => {
 
     const handleFavouriteClick = async () => {
         try {
+            if (!user) {
+                displayNotLoggedInPopUp('You need to log in to save a post as favourite.');
+                return
+            }
+
             if (isFavourite) {
                 const response = await $api.delete(`/favourite/${postId}`);
 
@@ -507,6 +512,7 @@ const Post = () => {
                     ) : comments.length > 0 ? (
                         comments.map((comment) => {
                             const { likeCount, dislikeCount } = countLikesDislikes(comment.likes);
+
                             return (
                                 <div key={comment.id} className="comment-card">
                                     <div className='comment-card-content'>
