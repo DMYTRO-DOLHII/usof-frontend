@@ -105,8 +105,6 @@ const Post = () => {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
 
-            console.log(response.data);
-
             setComments(sortedComments);
         } catch (err) {
             setCommentsError(err.message);
@@ -138,9 +136,10 @@ const Post = () => {
         setSortOrder(e.target.value);
     };
 
-    const countLikesDislikes = (likes) => {
+    const countLikesDislikes = (entity) => {
+        console.log(entity);
         let likeCount = 0, dislikeCount = 0;
-        likes.forEach(like => {
+        entity.likes.forEach(like => {
             if (like.type === 'like') likeCount++;
             if (like.type === 'dislike') dislikeCount++;
         });
@@ -278,17 +277,18 @@ const Post = () => {
         }
 
         try {
-            const response = await $api.post(`/comments/${commentId}/like`, { type });
+            const response = await $api.post(`/comments/${commentId}/like`, { type, postId });
             const updatedComment = response.data;
 
-            // Update comments state with the new like data
+            console.log(updatedComment.comment);
+
             setComments((prevComments) =>
                 prevComments.map((comment) =>
-                    comment.id === commentId ? { ...comment, likes: updatedComment.likes } : comment
+                    comment.id === commentId ? updatedComment.comment : comment
                 )
             );
         } catch (err) {
-            Swal.fire('Error', 'Failed to update like/dislike.', 'error');
+            Swal.fire('Error', err.message, 'error');
         }
     };
 
@@ -421,7 +421,7 @@ const Post = () => {
     if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
 
-    const postLikes = post ? countLikesDislikes(post.likes) : { likeCount: 0, dislikeCount: 0 };
+    const postLikes = post ? countLikesDislikes(post) : { likeCount: 0, dislikeCount: 0 };
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -541,7 +541,7 @@ const Post = () => {
                         <p className="text-danger">{commentsError}</p>
                     ) : comments.length > 0 ? (
                         comments.map((comment) => {
-                            const { likeCount, dislikeCount } = countLikesDislikes(comment.likes);
+                            const { likeCount, dislikeCount } = countLikesDislikes(comment);
                             const userLikeStatus = getUserLikeStatus(comment.likes, user?.id);
 
                             return (
