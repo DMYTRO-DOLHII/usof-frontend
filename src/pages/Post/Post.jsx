@@ -105,6 +105,8 @@ const Post = () => {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
 
+            console.log(response.data);
+
             setComments(sortedComments);
         } catch (err) {
             setCommentsError(err.message);
@@ -267,6 +269,34 @@ const Post = () => {
         } catch (err) {
             console.error('Failed to like/dislike post:', err);
         }
+    };
+
+    const handleCommentLikeDislike = async (commentId, type) => {
+        if (!user) {
+            Swal.fire('Not Logged In', 'You need to log in to like/dislike comments.', 'warning');
+            return;
+        }
+
+        try {
+            const response = await $api.post(`/comments/${commentId}/like`, { type });
+            const updatedComment = response.data;
+
+            // Update comments state with the new like data
+            setComments((prevComments) =>
+                prevComments.map((comment) =>
+                    comment.id === commentId ? { ...comment, likes: updatedComment.likes } : comment
+                )
+            );
+        } catch (err) {
+            Swal.fire('Error', 'Failed to update like/dislike.', 'error');
+        }
+    };
+
+
+    const getUserLikeStatus = (likes, userId) => {
+        if (!likes || !userId) return '';
+        const userLike = likes.find((like) => like.userId === userId);
+        return userLike ? userLike.type : '';
     };
 
     const handleDeletePost = async () => {
@@ -512,6 +542,7 @@ const Post = () => {
                     ) : comments.length > 0 ? (
                         comments.map((comment) => {
                             const { likeCount, dislikeCount } = countLikesDislikes(comment.likes);
+                            const userLikeStatus = getUserLikeStatus(comment.likes, user?.id);
 
                             return (
                                 <div key={comment.id} className="comment-card">
@@ -535,10 +566,20 @@ const Post = () => {
                                         <div className='comment-info-section'>
                                             <div className="comment-likes">
                                                 <span>
-                                                    <FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likeCount}
+                                                    <FontAwesomeIcon
+                                                        icon={faChevronUp}
+                                                        className={`like-icon ${userLikeStatus === 'like' ? 'like-active' : ''
+                                                            }`}
+                                                        onClick={() => handleCommentLikeDislike(comment.id, 'like')}
+                                                    /> {likeCount}
                                                 </span>
                                                 <span>
-                                                    <FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {dislikeCount}
+                                                    <FontAwesomeIcon
+                                                        icon={faChevronDown}
+                                                        className={`dislike-icon ${userLikeStatus === 'dislike' ? 'dislike-active' : ''
+                                                            }`}
+                                                        onClick={() => handleCommentLikeDislike(comment.id, 'dislike')}
+                                                    /> {dislikeCount}
                                                 </span>
                                             </div>
                                             <div className={`status-indicator ${comment.status === 'active' ? 'active' : 'inactive'}`}></div>
