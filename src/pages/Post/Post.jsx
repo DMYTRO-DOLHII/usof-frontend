@@ -137,7 +137,6 @@ const Post = () => {
     };
 
     const countLikesDislikes = (entity) => {
-        console.log(entity);
         let likeCount = 0, dislikeCount = 0;
         entity.likes.forEach(like => {
             if (like.type === 'like') likeCount++;
@@ -279,8 +278,6 @@ const Post = () => {
         try {
             const response = await $api.post(`/comments/${commentId}/like`, { type, postId });
             const updatedComment = response.data;
-
-            console.log(updatedComment.comment);
 
             setComments((prevComments) =>
                 prevComments.map((comment) =>
@@ -544,6 +541,8 @@ const Post = () => {
                             const { likeCount, dislikeCount } = countLikesDislikes(comment);
                             const userLikeStatus = getUserLikeStatus(comment.likes, user?.id);
 
+                            if (comment.id == 11191) console.log(userLikeStatus);
+
                             return (
                                 <div key={comment.id} className="comment-card">
                                     <div className='comment-card-content'>
@@ -568,15 +567,14 @@ const Post = () => {
                                                 <span>
                                                     <FontAwesomeIcon
                                                         icon={faChevronUp}
-                                                        className={`like-icon ${userLikeStatus === 'like' ? 'like-active' : ''
-                                                            }`}
+                                                        className={`like-icon ${userLikeStatus === 'like' ? 'active-like' : ''}`}
                                                         onClick={() => handleCommentLikeDislike(comment.id, 'like')}
                                                     /> {likeCount}
                                                 </span>
                                                 <span>
                                                     <FontAwesomeIcon
                                                         icon={faChevronDown}
-                                                        className={`dislike-icon ${userLikeStatus === 'dislike' ? 'dislike-active' : ''
+                                                        className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''
                                                             }`}
                                                         onClick={() => handleCommentLikeDislike(comment.id, 'dislike')}
                                                     /> {dislikeCount}

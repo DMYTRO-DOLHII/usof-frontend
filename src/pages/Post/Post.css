@@ -32,29 +32,29 @@
     font-size: 20px;
 }
 
-.post-likes .like-icon,
-.post-likes .dislike-icon {
+.like-icon,
+.dislike-icon {
     transition: .3s;
 }
 
-.post-likes .like-icon:hover {
+.like-icon:hover {
     cursor: pointer;
     color: #28a745;
     transform: scale(1.2);
 }
 
-.post-likes .dislike-icon:hover {
+.dislike-icon:hover {
     cursor: pointer;
     color: #c22f2f;
     transform: scale(1.2);
 }
 
-.post-likes .active-like {
-    color: #15ca3f;
+.active-like {
+    color: #15ca3f !important;
 }
 
-.post-likes .active-dislike {
-    color: #ff0808;
+.active-dislike {
+    color: #ff0808 !important;
 }
 
 .post-user-info {
