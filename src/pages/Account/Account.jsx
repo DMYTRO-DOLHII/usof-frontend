@@ -4,21 +4,48 @@ import './Account.css';
 import { decodeToken } from '../../utils/token';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import PostCard from '../Home/components/PostCard/PostCard';
 import $api from '../../api';
 
 const Account = () => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(decodeToken(localStorage.getItem('token')));
+    const [posts, setPosts] = useState([]);
+    const [favourites, setFavourites] = useState([]);
+    const [activeTab, setActiveTab] = useState('posts');
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ fullName: '', login: '' });
 
-    const token = localStorage.getItem('token');
     const navigate = useNavigate();
-    const fileInputRef = useRef(null); // Reference for the hidden file input
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
-        if (token) fetchMe(decodeToken(token).id);
+        if (user) fetchMe(user.id);
     }, []);
+
+    useEffect(() => {
+        const fetchUserPostData = async () => {
+            try {
+                const postsResponse = await $api.get(`/posts/${user.id}/posts`);
+
+                setPosts(postsResponse.data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        const fetchUserFavourites = async () => {
+            try {
+                const favouritesResponse = await $api.get(`/users/${user.id}/favourites`);
+                setFavourites(favouritesResponse.data);
+            } catch (error) {
+                console.error('Error fetching user favourites:', error);
+            }
+        };
+
+        fetchUserPostData();
+        fetchUserFavourites();
+    }, [user]);
 
     const fetchMe = async (userId) => {
         try {
@@ -31,6 +58,10 @@ const Account = () => {
         } catch (err) {
             setError(err.message);
         }
+    };
+
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
     };
 
     const handleLogout = async () => {
@@ -121,79 +152,112 @@ const Account = () => {
     return (
         <>
             <Header hideAuthorizationButtons={true} />
-            <div className="account-page container">
-                <h1>Account Information</h1>
-                <div className="profile-container">
-                    <div className="profile-picture" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
-                        <img
-                            src={isValidUrl(user.profilePicture)
-                                ? user.profilePicture
-                                : `${process.env.REACT_APP_BACK_URL_IMG}/${user.profilePicture}`}
-                            alt="Profile"
-                        />
-                        <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={handleImageChange}
-                        />
-                    </div>
-                    <div className="profile-details">
-                        {isEditing ? (
-                            <div className='edit-information'>
-                                <p>
-                                    <strong>Full Name</strong>
-                                </p>
-                                <input
-                                    className='fullName-input'
-                                    type="text"
-                                    name="fullName"
-                                    value={formData.fullName}
-                                    onChange={handleInputChange}
-                                />
-                                <p>
-                                    <strong>Login</strong>
-                                </p>
-                                <input
-                                    className='login-input'
-                                    type="text"
-                                    name="login"
-                                    value={formData.login}
-                                    onChange={handleInputChange}
-                                />
-                                <div className='buttons-edit'>
-                                    <button onClick={handleSaveChanges} className="btn btn-success save-changes-btn">
-                                        Save Changes
-                                    </button>
-                                    <button onClick={handleEditToggle} className="btn btn-secondary">
-                                        Cancel
-                                    </button>
+            <div className='container'>
+                <div className="account-page container">
+                    <h1>Account Information</h1>
+                    <div className="profile-container">
+                        <div className="profile-picture" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
+                            <img
+                                src={isValidUrl(user.profilePicture)
+                                    ? user.profilePicture
+                                    : `${process.env.REACT_APP_BACK_URL_IMG}/${user.profilePicture}`}
+                                alt="Profile"
+                            />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                onChange={handleImageChange}
+                            />
+                        </div>
+                        <div className="profile-details">
+                            {isEditing ? (
+                                <div className='edit-information'>
+                                    <p>
+                                        <strong>Full Name</strong>
+                                    </p>
+                                    <input
+                                        className='fullName-input'
+                                        type="text"
+                                        name="fullName"
+                                        value={formData.fullName}
+                                        onChange={handleInputChange}
+                                    />
+                                    <p>
+                                        <strong>Login</strong>
+                                    </p>
+                                    <input
+                                        className='login-input'
+                                        type="text"
+                                        name="login"
+                                        value={formData.login}
+                                        onChange={handleInputChange}
+                                    />
+                                    <div className='buttons-edit'>
+                                        <button onClick={handleSaveChanges} className="btn btn-success save-changes-btn">
+                                            Save Changes
+                                        </button>
+                                        <button onClick={handleEditToggle} className="btn btn-secondary">
+                                            Cancel
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <>
-                                <p>
-                                    <strong>Full Name:</strong> {user.fullName}
-                                </p>
-                                <p>
-                                    <strong>Login:</strong> {user.login}
-                                </p>
-                                <p>
-                                    <strong>Email:</strong> {user.email}
-                                </p>
-                                <p>
-                                    <strong>Rating:</strong> {user.rating}
-                                </p>
-                                <button onClick={handleEditToggle} className="btn btn-primary">
-                                    Edit Information
-                                </button>
-                            </>
-                        )}
+                            ) : (
+                                <>
+                                    <p>
+                                        <strong>Full Name:</strong> {user.fullName}
+                                    </p>
+                                    <p>
+                                        <strong>Login:</strong> {user.login}
+                                    </p>
+                                    <p>
+                                        <strong>Email:</strong> {user.email}
+                                    </p>
+                                    <p>
+                                        <strong>Rating:</strong> {user.rating}
+                                    </p>
+                                    <button onClick={handleEditToggle} className="btn btn-primary">
+                                        Edit Information
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                        <button onClick={handleLogout} className="btn btn-danger">
+                            Log Out
+                        </button>
                     </div>
-                    <button onClick={handleLogout} className="btn btn-danger">
-                        Log Out
+                </div>
+                <div className="tabs">
+                    <button
+                        className={`tab-button ${activeTab === 'posts' ? 'active' : ''}`}
+                        onClick={() => handleTabChange('posts')}
+                    >
+                        Posts
                     </button>
+                    <button
+                        className={`tab-button ${activeTab === 'favourites' ? 'active' : ''}`}
+                        onClick={() => handleTabChange('favourites')}
+                    >
+                        Favourites
+                    </button>
+                </div>
+                <div className="content">
+                    {activeTab === 'posts' && posts.length > 0 ? (
+                        <div className="row">
+                            {posts.map((post) => (
+                                <PostCard key={post.id} post={post} />
+                            ))}
+                        </div>
+                    ) : activeTab === 'favourites' && favourites.length > 0 ? (
+                        <div className="row">
+                            {favourites.map((post) => (
+                                <PostCard key={post.id} post={post} />
+                            ))}
+                        </div>
+                    ) : (
+                        <p>No content available.</p>
+                    )}
                 </div>
             </div>
             <Footer />
