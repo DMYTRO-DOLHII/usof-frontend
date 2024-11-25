@@ -89,10 +89,9 @@ const Header = ({ hideAuthorizationButtons }) => {
             {isOpen && (
                 <div className="overlay" onClick={toggleOverlay}>
                     <div className="overlay-content">
-                        <Link to="/account" onClick={toggleOverlay}>My Account</Link>
                         <Link to="/" onClick={toggleOverlay}>Home</Link>
+                        <Link to="/account" onClick={toggleOverlay}>My Account</Link>
                         <Link to="/users" onClick={toggleOverlay}>Users</Link>
-                        <Link to="/favorites" onClick={toggleOverlay}>Favorites</Link>
                     </div>
                 </div>
             )}

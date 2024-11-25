@@ -27,7 +27,7 @@ const PostCard = ({ post }) => {
                 <div className="card-body">
                     <h5 className="card-title">{post.title}</h5>
                     <small className="text-muted">
-                        Published on: {new Date(post.publishDate).toLocaleDateString()}
+                        Published on: {new Date(post.publishDate).toLocaleString()}
                     </small>
                     <div className="mt-2">
                         {post.categories && post.categories.length > 0 ? (

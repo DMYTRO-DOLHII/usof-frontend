@@ -17,8 +17,8 @@ const Home = () => {
 
     const postLimit = 30;
     const [page, setPage] = useState(1);
+    const [sortOrder, setSortOrder] = useState('dateCreated');
 
-    // Check for token in localStorage
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -26,16 +26,21 @@ const Home = () => {
             offset: (page - 1) * postLimit,
             limit: postLimit,
             search: search,
+            sort: sortOrder,
         }));
-    }, [page, search, dispatch]);
+    }, [page, search, sortOrder, dispatch]);
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
     };
 
+    const handleSortChange = (event) => {
+        setSortOrder(event.target.value);
+    };
+
     const handleCreatePost = () => {
         navigate('/create-post');
-    }
+    };
 
     return (
         <div className="d-flex flex-column min-vh-100">
@@ -55,6 +60,21 @@ const Home = () => {
                         Create a Post
                     </button>
                 )}
+
+                {/* Sorting Dropdown */}
+                <div className="sort-container mb-4">
+                    <label htmlFor="sort-posts">Sort by:</label>
+                    <select
+                        id="sort-posts"
+                        value={sortOrder}
+                        onChange={handleSortChange}
+                        className="sort-dropdown"
+                    >
+                        <option value="highestScore">Highest Score</option>
+                        <option value="active">Active</option>
+                        <option value="dateCreated">Date Created</option>
+                    </select>
+                </div>
 
                 <div className="row">
                     {posts.map((post) => (

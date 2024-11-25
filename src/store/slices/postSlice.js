@@ -3,10 +3,12 @@ import $api from "../../api";
 
 export const getAllPosts = createAsyncThunk(
     "post/getAllPosts",
-    async ({ offset = 0, limit = 30, search = '' }, { rejectWithValue, dispatch }) => {
+    async ({ offset = 0, limit = 30, search = '', sort = 'dateCreated' }, { rejectWithValue, dispatch }) => {
         try {
             if (offset < 0) return;
-            const response = await $api.get(`/posts?offset=${offset}&limit=${limit}&search=${search}`);
+            const response = await $api.get(
+                `/posts?offset=${offset}&limit=${limit}&search=${search}&sort=${sort}`
+            );
 
             dispatch(setPosts(response.data));
             dispatch(setTotalPages(Math.ceil(response.data.pagination.totalItems / limit)));
@@ -17,6 +19,7 @@ export const getAllPosts = createAsyncThunk(
         }
     }
 );
+
 
 export const createPost = createAsyncThunk(
     "post/createPost",
