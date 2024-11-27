@@ -33,7 +33,6 @@ const Post = () => {
     const { postId } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [commentsError, setCommentsError] = useState(null);
@@ -75,7 +74,6 @@ const Post = () => {
             } catch (err) {
                 setError(err.message);
             } finally {
-                setLoading(false);
             }
         };
 
@@ -434,7 +432,6 @@ const Post = () => {
     }
 
 
-    if (loading) return <p>Loading post...</p>;
     if (error) return <p className="text-danger">{error}</p>;
 
     const postLikes = post ? countLikesDislikes(post) : { likeCount: 0, dislikeCount: 0 };
