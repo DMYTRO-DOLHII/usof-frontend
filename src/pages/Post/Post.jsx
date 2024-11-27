@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faTrash, faEdit, faDeleteLeft, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as faBookmarkRegular } from '@fortawesome/free-regular-svg-icons';
 import { faBookmark as faBookmarkSolid } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
@@ -42,6 +42,8 @@ const Post = () => {
     const [user, setUser] = useState(null);
     const [isFavourite, setIsFavourite] = useState(false);
     const [favouriteCount, setFavouriteCount] = useState(0);
+    const [isEditing, setIsEditing] = useState(false);
+    const [updatedContent, setUpdatedContent] = useState(null);
 
     const [isPostCreator, setIsPostCreator] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -68,6 +70,7 @@ const Post = () => {
                 }
 
                 setFavouriteCount(response.data.favourites.length);
+                setUpdatedContent(response.data.content);
                 setPost(response.data);
             } catch (err) {
                 setError(err.message);
@@ -151,6 +154,22 @@ const Post = () => {
             return true;
         } catch (_) {
             return false;
+        }
+    };
+
+    const updatePostContent = async (content) => {
+        const response = await $api.patch(`/posts/${postId}/`, { content });
+        console.log(response.data);
+        return response.data;
+    };
+
+    const handleSaveChanges = async () => {
+        try {
+            await updatePostContent(updatedContent);
+            post.content = updatedContent;
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error saving changes:", error);
         }
     };
 
@@ -442,23 +461,19 @@ const Post = () => {
                             Published on: {new Date(post.publishDate).toLocaleDateString()}
                         </p>
                         <p>
-                            Status :
+                            Status:
                             <span className={`status ${post.status === 'active' ? 'status-active-text' : 'status-inactive-text'}`}>
                                 {post.status}
                             </span>
                         </p>
                         <div className="post-likes">
-                            <span
-                                onClick={() => handleLikeDislike('like')}
-                            >
+                            <span onClick={() => handleLikeDislike('like')}>
                                 <FontAwesomeIcon
                                     icon={faChevronUp}
                                     className={`like-icon ${userLikeStatus === 'like' ? 'active-like' : ''}`}
                                 /> {postLikes.likeCount}
                             </span>
-                            <span
-                                onClick={() => handleLikeDislike('dislike')}
-                            >
+                            <span onClick={() => handleLikeDislike('dislike')}>
                                 <FontAwesomeIcon
                                     icon={faChevronDown}
                                     className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''}`}
@@ -471,10 +486,18 @@ const Post = () => {
                                     onClick={() => handleFavouriteClick()}
                                 /> {favouriteCount}
                             </span>
-
                         </div>
-                        <div className="post-body" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(post.content) }}>
 
+                        <div className="post-body" ref={previewRef}>
+                            {isEditing ? (
+                                <textarea
+                                    value={updatedContent}
+                                    onChange={(e) => setUpdatedContent(e.target.value)}
+                                    className="content-editor"
+                                />
+                            ) : (
+                                <div dangerouslySetInnerHTML={{ __html: marked(post.content) }} />
+                            )}
                         </div>
 
                         <div className="post-user-info">
@@ -493,13 +516,25 @@ const Post = () => {
                                 <button onClick={handleDeletePost} className="btn btn-danger">
                                     <FontAwesomeIcon icon={faTrash} /> Delete Post
                                 </button>
-                                <button className="btn btn-primary button-edit">
-                                    <FontAwesomeIcon icon={faEdit} /> Edit
-                                </button>
+                                {isEditing ? (
+                                    <>
+                                        <button onClick={handleSaveChanges} className="btn btn-success">
+                                            <FontAwesomeIcon icon={faSave} /> Save
+                                        </button>
+                                        <button onClick={() => setIsEditing(false)} className="btn btn-secondary">
+                                            <FontAwesomeIcon icon={faTimes} /> Cancel
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button onClick={() => setIsEditing(true)} className="btn btn-primary button-edit">
+                                        <FontAwesomeIcon icon={faEdit} /> Edit
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
                 )}
+
 
                 <button className="btn leave-comment-button" onClick={handleLeaveComment}>
                     Leave a Comment
