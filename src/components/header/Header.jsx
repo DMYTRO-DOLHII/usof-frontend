@@ -96,7 +96,10 @@ const Header = ({ hideAuthorizationButtons }) => {
                         <div className="overlay-content">
                             <Link to="/login" onClick={toggleOverlay}>Login</Link>
                             <Link to="/" onClick={toggleOverlay}>Home</Link>
-                            <Link to="/account" onClick={toggleOverlay}>My Account</Link>
+                            {localStorage.getItem('token') && (
+                                <><Link to="/account" onClick={toggleOverlay}>My Account</Link></>
+                            )
+                            }
                             <Link to="/users" onClick={toggleOverlay}>Users</Link>
                         </div>
                     </div>
