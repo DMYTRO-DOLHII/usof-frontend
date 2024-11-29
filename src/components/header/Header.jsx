@@ -69,33 +69,40 @@ const Header = ({ hideAuthorizationButtons }) => {
                                 />
                             </Link>
                         ) : (
-                            <>
-                                <Link to={'/login'}>
-                                    <button className="btn btn-outline-primary" type="button">
-                                        Login
-                                    </button>
-                                </Link>
-                                <Link to={'/sign-up'}>
-                                    <button className="btn btn-primary" type="button">
-                                        Sign Up
-                                    </button>
-                                </Link>
-                            </>
+                            <div className='authorization-block'>
+                                <div className="login-button">
+                                    <Link to={'/login'}>
+                                        <button className="btn btn-outline-primary" type="button">
+                                            Login
+                                        </button>
+                                    </Link>
+                                </div>
+                                <div className='sign-up-button'>
+                                    <Link to={'/sign-up'}>
+                                        <button className="btn btn-primary sign-up-button" type="button">
+                                            Sign Up
+                                        </button>
+                                    </Link>
+                                </div>
+                            </div>
                         )}
                     </div>
                 )}
             </div>
 
-            {isOpen && (
-                <div className="overlay" onClick={toggleOverlay}>
-                    <div className="overlay-content">
-                        <Link to="/" onClick={toggleOverlay}>Home</Link>
-                        <Link to="/account" onClick={toggleOverlay}>My Account</Link>
-                        <Link to="/users" onClick={toggleOverlay}>Users</Link>
+            {
+                isOpen && (
+                    <div className="overlay" onClick={toggleOverlay}>
+                        <div className="overlay-content">
+                            <Link to="/login" onClick={toggleOverlay}>Login</Link>
+                            <Link to="/" onClick={toggleOverlay}>Home</Link>
+                            <Link to="/account" onClick={toggleOverlay}>My Account</Link>
+                            <Link to="/users" onClick={toggleOverlay}>Users</Link>
+                        </div>
                     </div>
-                </div>
-            )}
-        </header>
+                )
+            }
+        </header >
     );
 };
 

@@ -3,17 +3,21 @@
     justify-content: center;
     align-items: center;
     margin-top: 20px;
+    overflow-x: auto;
+    gap: 5px;
 }
 
 .pagination-button {
     border: 1px solid lightgray;
     background-color: transparent;
     color: #333;
-    padding: 8px 15px;
-    margin: 0 5px;
+    padding: 8px 12px;
+    margin: 0 3px;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 0.9rem;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    flex-shrink: 0;
 }
 
 .pagination-button.active {
@@ -34,5 +38,25 @@
 .pagination-ellipsis {
     color: #888;
     padding: 0 10px;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .pagination {
+        gap: 3px;
+    }
+
+    .pagination-button {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+
+    .prev-next {
+        padding: 6px 8px;
+    }
+
+    .pagination-ellipsis {
+        font-size: 0.8rem;
+    }
 }
