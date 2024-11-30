@@ -6,7 +6,17 @@ import { getCategories, clearCategories } from '../../store/slices/categorySlice
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import './CreatePost.css';
+import MarkdownIt from 'markdown-it';
+import MarkdownEditor from 'react-markdown-editor-lite';
+import 'react-markdown-editor-lite/lib/index.css';
 import $api from '../../api';
+
+const mdParser = new MarkdownIt(
+    {
+        breaks: true, // Включает поддержку переносов строк
+        gfm: true
+    }
+);
 
 const CreatePost = () => {
     const [title, setTitle] = useState('');
@@ -19,6 +29,10 @@ const CreatePost = () => {
     const navigate = useNavigate();
 
     const categories = useSelector(state => state.category.categories);
+
+    const handleEditorChange = ({ text }) => {
+        setContent(text);
+    };
 
     const handleCategoryChange = (e) => {
         const searchTerm = e.target.value;
@@ -83,14 +97,14 @@ const CreatePost = () => {
                     </div>
 
                     <div className="form-group-post">
-                        <label>Content (Markdown supported)</label>
-                        <textarea
-                            className="form-control"
+                        <label>Content</label>
+                        <MarkdownEditor
                             value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            rows="10"
-                            required
-                        ></textarea>
+                            style={{ height: '500px' }}
+                            renderHTML={(text) => mdParser.render(text)}
+                            onChange={handleEditorChange}
+                            placeholder="Write your post here..."
+                        />
                     </div>
 
                     <div className="form-group-post">
