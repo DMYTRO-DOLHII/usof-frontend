@@ -23,7 +23,7 @@
 }
 
 .burger-icon {
-    display: none;
+    display: block;
     font-size: 24px;
     cursor: pointer;
     margin-right: 15px;
@@ -83,10 +83,6 @@
 }
 
 @media (max-width: 515px) {
-    .burger-icon {
-        display: block;
-    }
-
     .authorization-block {
         display: none;
     }

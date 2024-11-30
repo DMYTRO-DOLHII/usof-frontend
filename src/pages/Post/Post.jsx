@@ -71,6 +71,7 @@ const Post = () => {
                 setFavouriteCount(response.data.favourites.length);
                 setUpdatedContent(response.data.content);
                 setPost(response.data);
+                console.log(response.data);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -137,9 +138,10 @@ const Post = () => {
         setSortOrder(e.target.value);
     };
 
-    const countLikesDislikes = (entity) => {
+    const countLikesDislikes = (entity, isPost = false) => {
         let likeCount = 0, dislikeCount = 0;
         entity.likes.forEach(like => {
+            if (isPost && like.commentId) return; 
             if (like.type === 'like') likeCount++;
             if (like.type === 'dislike') dislikeCount++;
         });
@@ -434,7 +436,7 @@ const Post = () => {
 
     if (error) return <p className="text-danger">{error}</p>;
 
-    const postLikes = post ? countLikesDislikes(post) : { likeCount: 0, dislikeCount: 0 };
+    const postLikes = post ? countLikesDislikes(post, true) : { likeCount: 0, dislikeCount: 0 };
 
     return (
         <div className="d-flex flex-column min-vh-100">
