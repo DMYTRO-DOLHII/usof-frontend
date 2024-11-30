@@ -7,6 +7,8 @@ import Post from './pages/Post/Post';
 import Users from './pages/Users/Users';
 import UserPage from './pages/UserPage/UserPage';
 import ConfirmEmail from './pages/ConfirmEmail/ConfirmEmail'
+import RequestPasswordReset from './pages/RequestPasswordReset/RequestPasswordReset'
+import PasswordReset from './pages/PasswordReset/PasswordReset';
 import CreatePost from './pages/CreatePost/CreatePost'
 import NotFound from './pages/NotFound/NotFound';
 import store, { persistor } from "./store/store";
@@ -31,6 +33,8 @@ const App = () => {
                         <Route path='/users' element={<Users />} />
                         <Route path='/users/:userId' element={<UserPage />} />
                         <Route path="/confirm-email" element={<ConfirmEmail />} />
+                        <Route path="/request-password-reset" element={<RequestPasswordReset />} />
+                        <Route path="/password-reset/:token" element={<PasswordReset />} />
                         <Route path="/create-post" element={<CreatePost />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>

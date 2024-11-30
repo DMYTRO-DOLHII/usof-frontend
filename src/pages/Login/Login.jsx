@@ -82,6 +82,12 @@ const Login = () => {
                 </div>
                 <div className="text-center mt-3">
                     <p>
+                        Forgot your password? <Link to="/request-password-reset">Reset Password</Link>
+                    </p>
+                </div>
+
+                <div className="text-center mt-3">
+                    <p>
                         Don't have an account? <Link to="/sign-up">Sign up</Link>
                     </p>
                 </div>
