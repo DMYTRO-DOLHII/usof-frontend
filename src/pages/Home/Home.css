@@ -43,6 +43,7 @@ input[type="number"] {
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 100px;
+    cursor: pointer;
 }
 
 .comments-info {

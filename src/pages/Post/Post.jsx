@@ -12,6 +12,8 @@ import './Post.css';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import Swal from 'sweetalert2';
+import { useDispatch } from 'react-redux';
+import { setSearch } from '../../store/slices/postSlice';
 
 marked.setOptions({
     gfm: true,
@@ -28,6 +30,7 @@ marked.setOptions({
 });
 
 const Post = () => {
+    const dispatch = useDispatch();
     const token = localStorage.getItem('token');
     const previewRef = useRef();
     const { postId } = useParams();
@@ -141,7 +144,7 @@ const Post = () => {
     const countLikesDislikes = (entity, isPost = false) => {
         let likeCount = 0, dislikeCount = 0;
         entity.likes.forEach(like => {
-            if (isPost && like.commentId) return; 
+            if (isPost && like.commentId) return;
             if (like.type === 'like') likeCount++;
             if (like.type === 'dislike') dislikeCount++;
         });
@@ -433,6 +436,11 @@ const Post = () => {
         }
     }
 
+    const handleCategoryClick = async (categoryTitle) => {
+        dispatch(setSearch(`-c ${categoryTitle}`))
+        navigate('/');
+    }
+
 
     if (error) return <p className="text-danger">{error}</p>;
 
@@ -449,7 +457,7 @@ const Post = () => {
                             <ul className="category-list list-unstyled">
                                 {post.categories.map((category) => (
                                     <li key={category.id} className="category-item">
-                                        {category.title}
+                                        <span onClick={(e) => handleCategoryClick(category.title)}>{category.title}</span>
                                     </li>
                                 ))}
                             </ul>
