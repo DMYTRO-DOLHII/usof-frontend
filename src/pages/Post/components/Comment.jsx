@@ -7,13 +7,13 @@ import $api from '../../../api';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 
-const Comment = ({ comment, user, isAdmin, onSumbitReply, onHandleDeleteReply, onHandleDeleteComment }) => {
+const Comment = ({ comment, user, isAdmin, onSumbitReply, onHandleDeleteReply, onHandleDeleteComment, onCommentLikeDislike }) => {
     const navigate = useNavigate();
     const [userCommentLikeStatus, setCommentLikeStatus] = useState();
 
     useEffect(() => {
         setCommentLikeStatus(getUserLikeStatus(comment.likes, user?.id));
-    }, )
+    },)
 
     // Helper functions (to be implemented later)
     const countLikesDislikes = (entity, isPost = false) => {
@@ -32,8 +32,21 @@ const Comment = ({ comment, user, isAdmin, onSumbitReply, onHandleDeleteReply, o
         return userLike ? userLike.type : '';
     };
 
-    const handleCommentLikeDislike = (commentId, type) => {
-        // todo: Handle like/dislike for the comment
+    const handleCommentLikeDislike = async (commentId, type) => {
+        if (!user) {
+            displayNotLoggedInPopUp('You need to log in to like or dislike a comment.');
+            return;
+        }
+
+        try {
+            const updatedComment = await onCommentLikeDislike(commentId, type); // Call parent function
+            if (updatedComment) {
+                const updatedStatus = getUserLikeStatus(updatedComment.likes, user?.id);
+                setCommentLikeStatus(updatedStatus);
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Failed to update like/dislike status.', 'error');
+        }
     };
 
     const displayNotLoggedInPopUp = (text) => {
@@ -157,7 +170,6 @@ const Comment = ({ comment, user, isAdmin, onSumbitReply, onHandleDeleteReply, o
                 {comment.replies &&
                     comment.replies.length > 0 &&
                     comment.replies
-                        .sort((a, b) => new Date(a.publishDate) - new Date(b.publishDate))
                         .map((reply) => (
                             <div key={reply.id} className="reply-card">
                                 <div className="reply-card-content">

@@ -279,25 +279,31 @@ const Post = () => {
     const handleCommentLikeDislike = async (commentId, type) => {
         if (!user) {
             Swal.fire('Not Logged In', 'You need to log in to like/dislike comments.', 'warning');
-            return;
+            return null;
         }
 
         try {
-            const response = await $api.post(`/comments/${commentId}/like`, { type, postId });
-            const updatedComment = response.data;
+            const response = await $api.post(`/comments/${commentId}/like`, { type });
+            const updatedComment = response.data.comment;
 
+            // Update the comments state
             setComments((prevComments) =>
                 prevComments.map((comment) =>
-                    comment.id === commentId ? updatedComment.comment : comment
+                    comment.id === commentId
+                        ? {
+                            ...comment,
+                            likes: updatedComment.likes, // Update only the replies field
+                          }
+                        : comment
                 )
             );
 
-
+            return updatedComment.comment; // Return the updated comment object
         } catch (err) {
             Swal.fire('Error', err.message, 'error');
+            return null;
         }
     };
-
 
     const getUserLikeStatus = (likes, userId) => {
         if (!likes || !userId) return '';
@@ -575,8 +581,9 @@ const Post = () => {
                                 onSumbitReply={submitReply}
                                 onHandleDeleteReply={handleDeleteReply}
                                 onHandleDeleteComment={handleDeleteComment}
+                                onCommentLikeDislike={handleCommentLikeDislike}
                             />
-                        ))                 
+                        ))
                     ) : (
                         <p>No comments available for this post.</p>
                     )}
