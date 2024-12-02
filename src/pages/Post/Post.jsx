@@ -6,6 +6,7 @@ import { faBookmark as faBookmarkRegular } from '@fortawesome/free-regular-svg-i
 import { faBookmark as faBookmarkSolid } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import Comment from './components/Comment';
 import $api from '../../api';
 import { decodeToken } from '../../utils/token';
 import './Post.css';
@@ -104,6 +105,8 @@ const Post = () => {
         try {
             const response = await $api.get(`/posts/${postId}/comments`);
             const sortedComments = sortComments(response.data, sortOrder);
+
+            console.log(sortedComments);
 
             setComments(sortedComments);
         } catch (err) {
@@ -563,96 +566,17 @@ const Post = () => {
                     ) : commentsError ? (
                         <p className="text-danger">{commentsError}</p>
                     ) : comments.length > 0 ? (
-                        comments.map((comment) => {
-                            const { likeCount, dislikeCount } = countLikesDislikes(comment);
-                            const userCommentLikeStatus = getUserLikeStatus(comment.likes, user?.id);
-
-                            return (
-                                <div key={comment.id} className="comment-card">
-                                    <div className='comment-card-content'>
-                                        <div className="comment-content">
-                                            <div className="comment-text" ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(comment.content) }}></div>
-                                            <div className="comment-meta">
-                                                {new Date(comment.publishDate).toLocaleString()}
-                                            </div>
-                                            <div className="comment-user-info">
-                                                <Link to={`/users/${comment.user.id}`} className="user-link">
-                                                    <img
-                                                        src={isValidUrl(comment.user.profilePicture)
-                                                            ? comment.user.profilePicture
-                                                            : `${process.env.REACT_APP_BACK_URL_IMG}/${comment.user.profilePicture}`}
-                                                        alt={`${comment.user.login}'s profile`} className="user-pic" />
-                                                    {comment.user.login}
-                                                </Link>
-                                            </div>
-                                        </div>
-                                        <div className='comment-info-section'>
-                                            <div className="comment-likes">
-                                                <span>
-                                                    <FontAwesomeIcon
-                                                        icon={faChevronUp}
-                                                        className={`like-icon ${userCommentLikeStatus === 'like' ? 'active-like' : ''}`}
-                                                        onClick={() => handleCommentLikeDislike(comment.id, 'like')}
-                                                    /> {likeCount}
-                                                </span>
-                                                <span>
-                                                    <FontAwesomeIcon
-                                                        icon={faChevronDown}
-                                                        className={`dislike-icon ${userCommentLikeStatus === 'dislike' ? 'active-dislike' : ''
-                                                            }`}
-                                                        onClick={() => handleCommentLikeDislike(comment.id, 'dislike')}
-                                                    /> {dislikeCount}
-                                                </span>
-                                            </div>
-                                            <div className={`status-indicator ${comment.status === 'active' ? 'active' : 'inactive'}`}></div>
-                                        </div>
-                                    </div>
-                                    <hr />
-                                    <div className="replies-section">
-                                        {comment.replies && comment.replies.length > 0 && (
-                                            comment.replies
-                                                .sort((a, b) => new Date(a.publishDate) - new Date(b.publishDate))
-                                                .map((reply) => (
-                                                    <div key={reply.id} className="reply-card">
-                                                        <div className='reply-card-content'>
-                                                            <div className="reply-content">
-                                                                <div>
-                                                                    {reply.content} - <Link to={`/users/${reply.user.id}`}>{reply.user.login}</Link>
-                                                                </div>
-                                                                <div className="reply-meta">
-                                                                    {new Date(reply.publishDate).toLocaleString()}
-                                                                </div>
-                                                            </div>
-                                                            {(user && (reply.userId === user.id || isAdmin)) && (
-                                                                <button className="btn delete-reply">
-                                                                    <FontAwesomeIcon
-                                                                        icon={faDeleteLeft}
-                                                                        className='delete-reply-icon'
-                                                                        onClick={() => handleDeleteReply(comment.id, reply.id)}
-                                                                    />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                        <hr />
-                                                    </div>
-                                                ))
-                                        )}
-                                        <button className="reply-button" onClick={() => handleReply(comment.id)}>
-                                            Reply
-                                        </button>
-                                    </div>
-                                    {(user && (comment.userId === user.id || isAdmin)) && (
-                                        <button className="btn delete-comment">
-                                            <FontAwesomeIcon
-                                                icon={faTrash}
-                                                className='delete-comment-icon'
-                                                onClick={() => handleDeleteComment(comment.id)}
-                                            />
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })
+                        comments.map((comment) => (
+                            <Comment
+                                key={comment.id}
+                                comment={comment}
+                                user={user}
+                                isAdmin={isAdmin}
+                                onSumbitReply={submitReply}
+                                onHandleDeleteReply={handleDeleteReply}
+                                onHandleDeleteComment={handleDeleteComment}
+                            />
+                        ))                 
                     ) : (
                         <p>No comments available for this post.</p>
                     )}
