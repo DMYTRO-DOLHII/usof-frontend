@@ -8,6 +8,7 @@ import { getAllPosts } from '../../store/slices/postSlice';
 import './Home.css';
 import { useNavigate } from 'react-router-dom';
 import { decodeToken } from '../../utils/token';
+import $api from '../../api';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -18,10 +19,25 @@ const Home = () => {
     const postLimit = 30;
     const [page, setPage] = useState(1);
     const [sortOrder, setSortOrder] = useState('dateCreated');
-
+    const [userLogin, setUserLogin] = useState(null);
     const token = localStorage.getItem('token');
 
+    const fetchMe = async (id) => {
+        try {
+            const response = await $api.get(`/users/${id}`);
+            if (response.status != 200) throw new Error('Error fetching user info');
+            const data = response.data;
+            setUserLogin(data.login);
+        } catch (err) {
+            
+        } finally {
+
+        }
+    };
+
     useEffect(() => {
+        if (token) fetchMe(decodeToken(token).id);
+
         dispatch(getAllPosts({
             offset: (page - 1) * postLimit,
             limit: postLimit,
@@ -29,6 +45,8 @@ const Home = () => {
             sort: sortOrder,
         }));
     }, [page, search, sortOrder, dispatch]);
+
+
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -47,10 +65,10 @@ const Home = () => {
             <Header />
             <div className="container my-5">
                 <h1>
-                    Welcome to McOk {token && (
+                    Welcome to McOk {userLogin && (
                         <>
-                        ,
-                            <span className='gradient'> {decodeToken(token).login}</span>
+                            ,
+                            <span className='gradient'>{userLogin}</span>
                         </>
                     )}
                 </h1>

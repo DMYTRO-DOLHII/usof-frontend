@@ -40,7 +40,7 @@ const Post = () => {
     const [error, setError] = useState(null);
     const [commentsError, setCommentsError] = useState(null);
     const [sortOrder, setSortOrder] = useState('dateCreated');
-    const [userLikeStatus, setUserLikeStatus] = useState(null);
+    const [userLikeStatus, setUserLikeStatus] = useState('');
     const [user, setUser] = useState(null);
     const [isFavourite, setIsFavourite] = useState(false);
     const [favouriteCount, setFavouriteCount] = useState(0);
@@ -74,7 +74,6 @@ const Post = () => {
                 setFavouriteCount(response.data.favourites.length);
                 setUpdatedContent(response.data.content);
                 setPost(response.data);
-                console.log(response.data);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -87,7 +86,9 @@ const Post = () => {
     useEffect(() => {
         if (!post || !user) return;
         const userLike = post.likes.find(like => like.userId === user.id);
+        console.log(userLike);
         if (userLike) {
+            console.log(userLike.type);
             setUserLikeStatus(userLike.type);
         }
 
@@ -96,7 +97,7 @@ const Post = () => {
 
         setIsPostCreator(user && user.id === post.userId);
         setIsAdmin(user && user.role === 'admin');
-    }, [post, user]);
+    }, [post, user, userLikeStatus]);
 
     useEffect(() => {
         if (previewRef.current) {
@@ -503,7 +504,7 @@ const Post = () => {
                                     className="content-editor"
                                 />
                             ) : (
-                                <div dangerouslySetInnerHTML={{ __html: marked(post.content) }} />
+                                <div className='prose prose-lg' ref={previewRef} dangerouslySetInnerHTML={{ __html: marked(post.content) }} />
                             )}
                         </div>
 

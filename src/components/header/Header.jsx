@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
 import SearchInput from './components/SearchInput';
 import { decodeToken } from '../../utils/token';
 import $api from '../../api';
+import { setSearch } from '../../store/slices/postSlice';
 
 const Header = ({ hideAuthorizationButtons }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +51,7 @@ const Header = ({ hideAuthorizationButtons }) => {
                     &#9776;
                 </div>
 
-                <a className="navbar-brand fw-bold gradient" href="/">
+                <a className="navbar-brand fw-bold gradient" href='/'>
                     McOk
                 </a>
 
