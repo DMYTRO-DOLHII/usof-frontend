@@ -53,51 +53,45 @@ const Post = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        try {
-            if (token) {
-                const decodedUser = decodeToken(token);
-                setUser(decodedUser);
-            }
-        } catch (err) {
-            console.error('Failed to fetch user:', err);
-        }
-
-        // Fetch post data and determine if user has liked/disliked the post
-        const fetchPost = async () => {
+        const fetchData = async () => {
             try {
+                let decodedUser = null;
+                if (token) {
+                    decodedUser = decodeToken(token);
+                    setUser(decodedUser);
+                }
+
                 const response = await $api.get(`/posts/${postId}`);
                 if (response.status === 404) {
                     navigate('/404');
                     return;
                 }
 
-                setFavouriteCount(response.data.favourites.length);
-                setUpdatedContent(response.data.content);
-                setPost(response.data);
+                const postData = response.data;
+                setFavouriteCount(postData.favourites.length);
+                setUpdatedContent(postData.content);
+                setPost(postData);
+
+                // Execute dependent logic here after both are available
+                if (decodedUser && postData) {
+                    const userLike = postData.likes.find(like => like.userId === decodedUser.id);
+                    if (userLike) setUserLikeStatus(userLike.type);
+
+                    const userFavourite = postData.favourites.find(favourite => favourite.userId === decodedUser.id);
+                    setIsFavourite(!!userFavourite);
+
+                    setIsPostCreator(decodedUser.id === postData.userId);
+                    setIsAdmin(decodedUser.role === 'admin');
+                }
             } catch (err) {
+                console.error('Error:', err);
                 setError(err.message);
-            } finally {
             }
         };
 
-        fetchPost();
-    }, [postId, navigate]);
+        fetchData();
+    }, [token, postId, navigate]);
 
-    useEffect(() => {
-        if (!post || !user) return;
-        const userLike = post.likes.find(like => like.userId === user.id);
-        console.log(userLike);
-        if (userLike) {
-            console.log(userLike.type);
-            setUserLikeStatus(userLike.type);
-        }
-
-        const userFavourite = post.favourites.find(favourite => favourite.userId === user.id);
-        if (userFavourite) setIsFavourite(true);
-
-        setIsPostCreator(user && user.id === post.userId);
-        setIsAdmin(user && user.role === 'admin');
-    }, [post, user, userLikeStatus]);
 
     useEffect(() => {
         if (previewRef.current) {
@@ -251,38 +245,25 @@ const Post = () => {
                     ...prevPost,
                     likes: prevPost.likes.filter((like) => like.userId !== user.id),
                 }));
-                setUserLikeStatus('');
+                setUserLikeStatus(null);
+                return;
             } else {
                 if (type === 'like') {
-                    if (userLikeStatus === 'dislike') {
-                        setPost((prevPost) => ({
-                            ...prevPost,
-                            likes: [
-                                ...prevPost.likes.filter((like) => like.userId !== user.id),
-                                { userId: user.id, type: 'like' },
-                            ],
-                        }));
-                    } else {
-                        setPost((prevPost) => ({
-                            ...prevPost,
-                            likes: [...prevPost.likes, { userId: user.id, type: 'like' }],
-                        }));
-                    }
+                    setPost((prevPost) => ({
+                        ...prevPost,
+                        likes: [
+                            ...prevPost.likes.filter((like) => like.userId !== user.id),
+                            { userId: user.id, type: 'like' },
+                        ],
+                    }));
                 } else if (type === 'dislike') {
-                    if (userLikeStatus === 'like') {
-                        setPost((prevPost) => ({
-                            ...prevPost,
-                            likes: [
-                                ...prevPost.likes.filter((like) => like.userId !== user.id),
-                                { userId: user.id, type: 'dislike' },
-                            ],
-                        }));
-                    } else {
-                        setPost((prevPost) => ({
-                            ...prevPost,
-                            likes: [...prevPost.likes, { userId: user.id, type: 'dislike' }],
-                        }));
-                    }
+                    setPost((prevPost) => ({
+                        ...prevPost,
+                        likes: [
+                            ...prevPost.likes.filter((like) => like.userId !== user.id),
+                            { userId: user.id, type: 'dislike' },
+                        ],
+                    }));
                 }
 
                 setUserLikeStatus(type);
@@ -307,6 +288,8 @@ const Post = () => {
                     comment.id === commentId ? updatedComment.comment : comment
                 )
             );
+
+
         } catch (err) {
             Swal.fire('Error', err.message, 'error');
         }
@@ -582,9 +565,7 @@ const Post = () => {
                     ) : comments.length > 0 ? (
                         comments.map((comment) => {
                             const { likeCount, dislikeCount } = countLikesDislikes(comment);
-                            const userLikeStatus = getUserLikeStatus(comment.likes, user?.id);
-
-                            if (comment.id == 11191) console.log(userLikeStatus);
+                            const userCommentLikeStatus = getUserLikeStatus(comment.likes, user?.id);
 
                             return (
                                 <div key={comment.id} className="comment-card">
@@ -610,14 +591,14 @@ const Post = () => {
                                                 <span>
                                                     <FontAwesomeIcon
                                                         icon={faChevronUp}
-                                                        className={`like-icon ${userLikeStatus === 'like' ? 'active-like' : ''}`}
+                                                        className={`like-icon ${userCommentLikeStatus === 'like' ? 'active-like' : ''}`}
                                                         onClick={() => handleCommentLikeDislike(comment.id, 'like')}
                                                     /> {likeCount}
                                                 </span>
                                                 <span>
                                                     <FontAwesomeIcon
                                                         icon={faChevronDown}
-                                                        className={`dislike-icon ${userLikeStatus === 'dislike' ? 'active-dislike' : ''
+                                                        className={`dislike-icon ${userCommentLikeStatus === 'dislike' ? 'active-dislike' : ''
                                                             }`}
                                                         onClick={() => handleCommentLikeDislike(comment.id, 'dislike')}
                                                     /> {dislikeCount}
