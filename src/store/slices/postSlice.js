@@ -56,6 +56,9 @@ const post = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(getAllPosts.rejected, (state, payload) => {
+                state.posts = []
+            })
             .addCase(createPost.fulfilled, (state, action) => {
                 state.posts.unshift(action.payload);
             })
