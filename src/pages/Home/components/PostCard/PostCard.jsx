@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import './PostCard.css'
+import { useState } from "react";
 
 const PostCard = ({ post }) => {
+
     const navigate = useNavigate();
 
     const handleCardClick = (postId) => {
@@ -19,6 +21,11 @@ const PostCard = ({ post }) => {
             return false;
         }
     };
+
+    const likeCount = post.likes.filter((like) => like.type === 'like').length;
+    const dislikeCount = post.likes.filter((like) => like.type === 'dislike').length;
+    const commentsCount = post.comments.length;
+
 
     return (
         <div key={post.id} className="col-md-4 mb-4" onClick={() => handleCardClick(post.id)}>
@@ -44,8 +51,8 @@ const PostCard = ({ post }) => {
                     </div>
                     {/* Likes and Dislikes */}
                     <div className="likes-info">
-                        <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {post.likes}</div>
-                        <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {post.dislikes}</div>
+                        <div className='likes'><FontAwesomeIcon icon={faChevronUp} className="like-icon" /> {likeCount}</div>
+                        <div className='disliked'><FontAwesomeIcon icon={faChevronDown} className="dislike-icon" /> {dislikeCount}</div>
                     </div>
 
                     {/* Display User Information */}
@@ -65,7 +72,7 @@ const PostCard = ({ post }) => {
                 </div>
                 {/* Comment Icon and Count */}
                 <div className="comments-info">
-                    <FontAwesomeIcon icon={faComment} /> {post.commentsCount}
+                    <FontAwesomeIcon icon={faComment} /> {commentsCount}
                 </div>
             </div>
         </div>

@@ -10,6 +10,8 @@ export const getAllPosts = createAsyncThunk(
                 `/posts?offset=${offset}&limit=${limit}&search=${search}&sort=${sort}`
             );
 
+            console.log(response.status);
+
             dispatch(setPosts(response.data));
             dispatch(setTotalPages(Math.ceil(response.data.pagination.totalItems / limit)));
 
