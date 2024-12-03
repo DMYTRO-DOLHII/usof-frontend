@@ -20,7 +20,6 @@ export const getAllPosts = createAsyncThunk(
     }
 );
 
-
 export const createPost = createAsyncThunk(
     "post/createPost",
     async ({ title, content, category }, { rejectWithValue }) => {
