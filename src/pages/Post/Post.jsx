@@ -63,17 +63,12 @@ const Post = () => {
                 }
 
                 const response = await $api.get(`/posts/${postId}`);
-                if (response.status === 404) {
-                    navigate('/404');
-                    return;
-                }
-
                 const postData = response.data;
+
                 setFavouriteCount(postData.favourites.length);
                 setUpdatedContent(postData.content);
                 setPost(postData);
 
-                // Execute dependent logic here after both are available
                 if (decodedUser && postData) {
                     const userLike = postData.likes.find(like => like.userId === decodedUser.id);
                     if (userLike) setUserLikeStatus(userLike.type);
@@ -85,13 +80,18 @@ const Post = () => {
                     setIsAdmin(decodedUser.role === 'admin');
                 }
             } catch (err) {
-                console.error('Error:', err);
-                setError(err.message);
+                if (err.response && err.response.status === 404) {
+                    navigate('/404');
+                } else {
+                    console.error('Error:', err);
+                    setError(err.message); 
+                }
             }
         };
 
         fetchData();
     }, [token, postId, navigate]);
+
 
 
     useEffect(() => {
@@ -291,7 +291,7 @@ const Post = () => {
                         ? {
                             ...comment,
                             likes: updatedComment.likes, // Update only the replies field
-                          }
+                        }
                         : comment
                 )
             );
