@@ -25,11 +25,11 @@ const Home = () => {
     const fetchMe = async (id) => {
         try {
             const response = await $api.get(`/users/${id}`);
-            if (response.status != 200) throw new Error('Error fetching user info');
+            if (response.status !== 200) throw new Error('Error fetching user info');
             const data = response.data;
             setUserLogin(data.login);
         } catch (err) {
-            
+
         } finally {
 
         }
@@ -44,9 +44,7 @@ const Home = () => {
             search: search,
             sort: sortOrder,
         }));
-    }, [page, search, sortOrder, dispatch]);
-
-
+    }, [page, search, sortOrder, token, dispatch]);
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -68,7 +66,7 @@ const Home = () => {
                     Welcome to McOk {userLogin && (
                         <>
                             ,
-                            <span className='gradient'>{userLogin}</span>
+                            <span className='gradient'> {userLogin}</span>
                         </>
                     )}
                 </h1>
@@ -79,7 +77,6 @@ const Home = () => {
                     </button>
                 )}
 
-                {/* Sorting Dropdown */}
                 <div className="sort-container mb-4">
                     <label htmlFor="sort-posts">Sort by:</label>
                     <select
